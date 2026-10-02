@@ -1,0 +1,43 @@
+<main class="pagina">
+  <section class="cartao">
+    <header class="marca">
+      <h1>TFCloud</h1>
+      <span>ESCOLA TÉCNICA</span>
+    </header>
+
+    @if (!enviado) {
+      <h2>Esqueceu sua senha?</h2>
+      <p class="descricao">
+        Informe seu e-mail institucional e enviaremos um link para criar uma nova senha.
+      </p>
+
+      <form (ngSubmit)="enviar()">
+        <label for="email">E-mail institucional</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="seu.usuario@etec.ap.gov.br"
+          [(ngModel)]="email"
+          (blur)="marcar()"
+          [class.invalido]="erroEmail"
+          [attr.aria-invalid]="!!erroEmail"
+          autocomplete="email"
+        />
+        @if (erroEmail) {
+          <p class="erro" role="alert">{{ erroEmail }}</p>
+        }
+
+        <button type="submit" class="btn-enviar">Enviar link</button>
+      </form>
+    } @else {
+      <h2>Verifique seu e-mail</h2>
+      <p class="mensagem" role="status">
+        Se o e-mail <strong>{{ email }}</strong> estiver cadastrado, você receberá um link para
+        redefinir a senha. O link vale por 30 minutos.
+      </p>
+    }
+
+    <p class="rodape"><a routerLink="/login">Voltar para o login</a></p>
+  </section>
+</main>
