@@ -1,0 +1,117 @@
+<p class="secao">NOVO ENVIO</p>
+<h1>Enviar Trabalho Final de Curso</h1>
+<p class="subtitulo">Preencha os dados e anexe o arquivo em PDF.</p>
+
+<form class="cartao" (ngSubmit)="enviar()" novalidate>
+  <div
+    class="area-upload"
+    [class.arrastando]="arrastando"
+    [class.invalido]="erroArquivoMostrado"
+    (dragover)="aoArrastar($event)"
+    (dragleave)="aoSairDoArraste($event)"
+    (drop)="aoSoltar($event)"
+  >
+    @if (!arquivo) {
+      <span class="icone-upload" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 19V5"></path>
+          <path d="M5 12l7-7 7 7"></path>
+        </svg>
+      </span>
+      <p class="upload-titulo">Arraste o arquivo PDF aqui</p>
+      <p class="upload-dica">ou selecione manualmente · máx. 25 MB</p>
+      <button type="button" class="btn-escolher" (click)="seletor.click()">Escolher arquivo</button>
+    } @else {
+      <div class="arquivo-escolhido">
+        <div class="arquivo-info">
+          <p class="arquivo-nome">{{ arquivo.name }}</p>
+          <p class="upload-dica">{{ formatarTamanho(arquivo.size) }}</p>
+        </div>
+        <button type="button" class="btn-remover" (click)="removerArquivo()">Remover</button>
+      </div>
+    }
+
+    <input
+      #seletor
+      type="file"
+      accept="application/pdf,.pdf"
+      hidden
+      (change)="escolher($event)"
+    />
+  </div>
+  @if (erroArquivoMostrado) {
+    <p class="erro" role="alert">{{ erroArquivoMostrado }}</p>
+  }
+
+  <label for="titulo">Título do trabalho</label>
+  <input
+    id="titulo"
+    name="titulo"
+    type="text"
+    placeholder="Ex: Automação de irrigação com sensores IoT"
+    [(ngModel)]="titulo"
+    (blur)="marcar('titulo')"
+    [class.invalido]="erroTitulo"
+    [attr.aria-invalid]="!!erroTitulo"
+  />
+  @if (erroTitulo) {
+    <p class="erro" role="alert">{{ erroTitulo }}</p>
+  }
+
+  <div class="linha">
+    <div class="coluna">
+      <label for="curso">Curso</label>
+      <div class="campo-select">
+        <select id="curso" name="curso" [(ngModel)]="curso">
+          @for (c of cursos; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+        <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="coluna">
+      <label for="orientador">Orientador(a)</label>
+      <input
+        id="orientador"
+        name="orientador"
+        type="text"
+        placeholder="Nome do orientador"
+        [(ngModel)]="orientador"
+        (blur)="marcar('orientador')"
+        [class.invalido]="erroOrientador"
+        [attr.aria-invalid]="!!erroOrientador"
+      />
+      @if (erroOrientador) {
+        <p class="erro" role="alert">{{ erroOrientador }}</p>
+      }
+    </div>
+  </div>
+
+  <label for="palavra">Palavras-chave</label>
+  <div class="campo-tags" [class.invalido]="erroPalavras">
+    @for (p of palavras; track p; let i = $index) {
+      <span class="tag">
+        {{ p }}
+        <button type="button" (click)="removerPalavra(i)" [attr.aria-label]="'Remover ' + p">×</button>
+      </span>
+    }
+    <input
+      id="palavra"
+      name="palavra"
+      type="text"
+      placeholder="Digite e aperte Enter para adicionar"
+      [(ngModel)]="entradaPalavra"
+      (keydown)="aoTeclarPalavra($event)"
+      (blur)="aoSairDaPalavra()"
+    />
+  </div>
+  @if (erroPalavras) {
+    <p class="erro" role="alert">{{ erroPalavras }}</p>
+  }
+
+  <button type="submit" class="btn-enviar">Enviar para avaliação</button>
+</form>
