@@ -3,12 +3,13 @@ import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Sessao } from '../servicos/sessao';
+import { Logo } from '../logo/logo';
 
 const CHAVE_EMAIL = 'tfcloud_email_lembrado';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Logo],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -50,10 +51,10 @@ export class Login implements OnInit {
     this.erro = '';
     this.salvarOuLimparEmail();
 
-    // Login de mentira: aceita qualquer e-mail e senha.
-    // Na Parte 2 isso vira uma chamada ao backend.
+    // Login de mentira: aceita qualquer senha.
+    // Na Parte 2 isso vira uma chamada ao backend, que devolve o papel do usuário.
     this.sessao.entrar(this.email, this.lembrar);
-    this.router.navigate(['/painel']);
+    this.router.navigate([this.sessao.ehAdmin ? '/admin' : '/painel']);
   }
 
   private salvarOuLimparEmail() {
