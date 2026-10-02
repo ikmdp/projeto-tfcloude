@@ -1,0 +1,55 @@
+<p class="secao">ACERVO</p>
+<h1>Consultar trabalhos anteriores</h1>
+<p class="subtitulo">Busque por título, autor, curso ou palavra-chave.</p>
+
+<form class="busca" role="search" (ngSubmit)="buscar()">
+  <label class="so-leitor" for="busca">Buscar trabalhos</label>
+  <input
+    id="busca"
+    name="busca"
+    type="search"
+    placeholder="Buscar por título, autor ou tema..."
+    [(ngModel)]="consulta"
+    (input)="aoDigitar()"
+    autocomplete="off"
+  />
+  <button type="submit" class="btn-buscar">Buscar</button>
+</form>
+
+<div class="filtros" role="group" aria-label="Filtrar por curso">
+  @for (curso of opcoes; track curso) {
+    <button
+      type="button"
+      class="filtro"
+      [class.ativo]="cursoAtual === curso"
+      [attr.aria-pressed]="cursoAtual === curso"
+      (click)="escolherCurso(curso)"
+    >
+      {{ curso }}
+    </button>
+  }
+</div>
+
+<p class="so-leitor" aria-live="polite">{{ resultados.length }} trabalhos encontrados</p>
+
+<section class="cartao">
+  @if (resultados.length === 0) {
+    <div class="vazio">
+      <p>Nenhum trabalho encontrado.</p>
+      <p class="dica">Tente outro termo ou escolha outro curso.</p>
+      <button type="button" class="btn-limpar" (click)="limpar()">Limpar filtros</button>
+    </div>
+  } @else {
+    <ul class="lista">
+      @for (t of resultados; track t.id) {
+        <li class="trabalho">
+          <div>
+            <p class="titulo">{{ t.titulo }}</p>
+            <p class="detalhe">{{ t.autor }} · {{ t.curso }} · {{ t.ano }}</p>
+          </div>
+          <span class="arquivo">{{ formatarTamanho(t.tamanho) }}</span>
+        </li>
+      }
+    </ul>
+  }
+</section>
