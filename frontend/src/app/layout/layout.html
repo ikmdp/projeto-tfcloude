@@ -1,0 +1,40 @@
+<div class="app">
+  <aside class="lateral">
+    <div class="marca">
+      <div class="logo-box">
+        <img src="logo-tfcloud.png" alt="tfcloud" />
+      </div>
+      <div class="marca-texto">
+        <strong>TFCloud</strong>
+        <span>Escola Técnica</span>
+      </div>
+    </div>
+
+    <nav class="menu" aria-label="Menu principal">
+      <a class="item" routerLink="/painel" routerLinkActive="ativo" ariaCurrentWhenActive="page">Painel</a>
+      <a class="item" routerLink="/enviar" routerLinkActive="ativo" ariaCurrentWhenActive="page">Enviar TFC</a>
+            <a class="item" routerLink="/acervo" routerLinkActive="ativo" ariaCurrentWhenActive="page">Consultar acervo</a>
+      <button type="button" class="item">Avaliação (coordenação)</button>
+    </nav>
+
+    <div class="rodape-lateral">
+      <button type="button" class="icone" aria-label="Ajuda">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path>
+          <path d="M12 17h.01"></path>
+        </svg>
+      </button>
+      <button type="button" class="icone" aria-label="Sair da conta" (click)="sair()">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M4 21a8 8 0 0 1 16 0"></path>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <main class="conteudo">
+    <router-outlet />
+  </main>
+</div>
