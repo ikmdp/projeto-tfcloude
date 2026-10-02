@@ -1,13 +1,19 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
+export type Papel = 'aluno' | 'admin';
+
 export interface UsuarioLogado {
   nome: string;
   email: string;
+  papel: Papel;
 }
 
 const CHAVE_SESSAO = 'tfcloud_sessao';
 const CHAVE_NOMES = 'tfcloud_nomes';
+
+// Provisório: no backend, o papel virá do banco de dados e não do e-mail.
+const EMAIL_ADMIN = 'admin@gmail.com';
 
 @Injectable({ providedIn: 'root' })
 export class Sessao {
@@ -18,10 +24,16 @@ export class Sessao {
     if (!this.ehNavegador) return null;
     try {
       const texto = localStorage.getItem(CHAVE_SESSAO) ?? sessionStorage.getItem(CHAVE_SESSAO);
-      return texto ? (JSON.parse(texto) as UsuarioLogado) : null;
+      if (!texto) return null;
+      const salvo = JSON.parse(texto) as UsuarioLogado;
+      return { ...salvo, papel: this.papelDoEmail(salvo.email) };
     } catch {
       return null;
     }
+  }
+
+  get ehAdmin(): boolean {
+    return this.usuario?.papel === 'admin';
   }
 
   /** Só o primeiro nome, para a saudação. */
@@ -48,6 +60,7 @@ export class Sessao {
     const usuario: UsuarioLogado = {
       email: email.trim(),
       nome: this.descobrirNome(email),
+      papel: this.papelDoEmail(email),
     };
     try {
       this.sair();
@@ -68,7 +81,13 @@ export class Sessao {
     }
   }
 
+  private papelDoEmail(email: string): Papel {
+    return email.trim().toLowerCase() === EMAIL_ADMIN ? 'admin' : 'aluno';
+  }
+
   private descobrirNome(email: string): string {
+    if (this.papelDoEmail(email) === 'admin') return 'Coordenação';
+
     const chave = email.trim().toLowerCase();
     const salvo = this.lerNomes()[chave];
     if (salvo) return salvo;
