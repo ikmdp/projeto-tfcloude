@@ -1,0 +1,104 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(circle at 22% 38%, rgba(40, 70, 100, 0.35), transparent 30%),
+    radial-gradient(circle at 85% 75%, rgba(30, 55, 120, 0.3), transparent 30%),
+    #1a1b26;
+}
+
+.logo-box {
+  width: 108px;
+  height: 108px;
+  border-radius: 22px;
+  background: #050507;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.logo-box img {
+  width: 96px;
+}
+
+h1 {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.subtitulo {
+  margin: 0 0 36px;
+  max-width: 480px;
+  color: #8e90a3;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.btn-comecar {
+  width: 100%;
+  max-width: 494px;
+  height: 37px;
+  border: none;
+  border-radius: 4px;
+  background: #4a69ff;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-comecar:hover {
+  background: #5d79ff;
+}
+
+.btn-comecar:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.stats {
+  display: flex;
+  margin-top: 60px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 36px;
+}
+
+.stat + .stat {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.valor {
+  color: #4aa8f0;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.valor.verde {
+  color: #5cc45c;
+}
+
+.legenda {
+  color: #8e90a3;
+  font-size: 10px;
+}
