@@ -1,7 +1,7 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
-export type StatusEnvio = 'Em análise' | 'Aprovado';
+export type StatusEnvio = 'Em análise' | 'Aprovado' | 'Reprovado';
 
 export interface Envio {
   id: string;
@@ -15,7 +15,6 @@ export interface Envio {
   arquivoNome?: string;
   arquivoTamanho?: number;
 }
-
 
 const CHAVE_ENVIOS = 'tfcloud_envios';
 
@@ -31,7 +30,22 @@ export class Envios {
     );
   }
 
-  /** Registra um novo envio (será chamado pela tela "Enviar TFC"). */
+  /** Trabalhos aprovados de todos os usuários (alimenta o acervo). */
+  listarAprovados(): Envio[] {
+    return Object.values(this.lerTudo())
+      .flat()
+      .filter((e) => e.status === 'Aprovado');
+  }
+
+  /** Fila da coordenação: envios em análise de todos os usuários, do mais antigo ao mais novo. */
+  listarEmAnalise(): Envio[] {
+    return Object.values(this.lerTudo())
+      .flat()
+      .filter((e) => e.status === 'Em análise')
+      .sort((a, b) => new Date(a.enviadoEm).getTime() - new Date(b.enviadoEm).getTime());
+  }
+
+  /** Registra um novo envio. */
   adicionar(email: string, dados: Omit<Envio, 'id'>): Envio {
     const envio: Envio = { ...dados, id: this.novoId() };
     const tudo = this.lerTudo();
@@ -41,11 +55,18 @@ export class Envios {
     return envio;
   }
 
-    /** Trabalhos aprovados de todos os usuários (alimenta o acervo). */
-  listarAprovados(): Envio[] {
-    return Object.values(this.lerTudo())
-      .flat()
-      .filter((e) => e.status === 'Aprovado');
+  /** Muda o status de um envio, de qualquer usuário. Devolve false se não achar. */
+  alterarStatus(id: string, status: StatusEnvio): boolean {
+    const tudo = this.lerTudo();
+    for (const lista of Object.values(tudo)) {
+      const envio = lista.find((e) => e.id === id);
+      if (envio) {
+        envio.status = status;
+        this.gravarTudo(tudo);
+        return true;
+      }
+    }
+    return false;
   }
 
   /** Apaga todos os envios de um usuário (usado só nos testes). */
