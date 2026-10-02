@@ -1,20 +1,13 @@
 <div class="app">
   <aside class="lateral">
     <div class="marca">
-      <div class="logo-box">
-        <img src="logo-tfcloud.png" alt="tfcloud" />
-      </div>
-      <div class="marca-texto">
-        <strong>TFCloud</strong>
-        <span>Escola Técnica</span>
-      </div>
+      <app-logo [tamanho]="48" />
     </div>
 
     <nav class="menu" aria-label="Menu principal">
       <a class="item" routerLink="/painel" routerLinkActive="ativo" ariaCurrentWhenActive="page">Painel</a>
       <a class="item" routerLink="/enviar" routerLinkActive="ativo" ariaCurrentWhenActive="page">Enviar TFC</a>
-            <a class="item" routerLink="/acervo" routerLinkActive="ativo" ariaCurrentWhenActive="page">Consultar acervo</a>
-            <a class="item" routerLink="/avaliacao" routerLinkActive="ativo" ariaCurrentWhenActive="page">Avaliação (coordenação)</a>
+      <a class="item" routerLink="/acervo" routerLinkActive="ativo" ariaCurrentWhenActive="page">Consultar acervo</a>
     </nav>
 
     <div class="rodape-lateral">
