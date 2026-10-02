@@ -1,0 +1,71 @@
+<p class="secao">COORDENAÇÃO</p>
+<h1>Fila de avaliação</h1>
+<p class="subtitulo">Trabalhos aguardando aprovação para entrar no acervo.</p>
+
+@if (aviso) {
+  <div class="aviso" role="status">
+    <p>{{ aviso.texto }}</p>
+    <div class="aviso-acoes">
+      <button type="button" class="btn-aviso" (click)="desfazer()">Desfazer</button>
+      <button type="button" class="btn-aviso" (click)="fecharAviso()" aria-label="Fechar aviso">×</button>
+    </div>
+  </div>
+}
+
+<section class="cartao">
+  @if (fila.length === 0) {
+    <div class="vazio">
+      <p>Nenhum trabalho aguardando avaliação.</p>
+      <p class="dica">Os envios novos aparecem aqui.</p>
+    </div>
+  } @else {
+    <ul class="lista">
+      @for (item of fila; track item.id) {
+        <li class="trabalho">
+          <div class="info">
+            <p class="titulo">{{ item.titulo }}</p>
+            <p class="detalhe">{{ item.detalhe }}</p>
+          </div>
+
+          <div class="acoes">
+            <button
+              type="button"
+              class="acao"
+              disabled
+              title="O PDF fica disponível quando o backend guardar os arquivos"
+              [attr.aria-label]="'Abrir PDF de ' + item.titulo"
+            >
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <path d="M14 2v6h6"></path>
+              </svg>
+            </button>
+
+            <button
+              type="button"
+              class="acao reprovar"
+              (click)="reprovar(item)"
+              [attr.aria-label]="'Reprovar ' + item.titulo"
+            >
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18"></path>
+                <path d="M6 6l12 12"></path>
+              </svg>
+            </button>
+
+            <button
+              type="button"
+              class="acao aprovar"
+              (click)="aprovar(item)"
+              [attr.aria-label]="'Aprovar ' + item.titulo"
+            >
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5"></path>
+              </svg>
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>
