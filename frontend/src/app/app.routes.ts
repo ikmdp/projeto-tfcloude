@@ -8,6 +8,7 @@ import { Layout } from './layout/layout';
 import { Painel } from './painel/painel';
 import { EnviarTfc } from './enviar-tfc/enviar-tfc';
 import { Acervo } from './acervo/acervo';
+import { Avaliacao } from './avaliacao/avaliacao';
 
 export const routes: Routes = [
   { path: '', component: Home, pathMatch: 'full' },
@@ -24,6 +25,7 @@ export const routes: Routes = [
       { path: 'painel', component: Painel },
       { path: 'enviar', component: EnviarTfc },
       { path: 'acervo', component: Acervo },
+      { path: 'avaliacao', component: Avaliacao },
     ],
   },
 ];
