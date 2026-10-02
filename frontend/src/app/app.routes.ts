@@ -9,6 +9,9 @@ import { Painel } from './painel/painel';
 import { EnviarTfc } from './enviar-tfc/enviar-tfc';
 import { Acervo } from './acervo/acervo';
 import { Avaliacao } from './avaliacao/avaliacao';
+import { AdminLayout } from './admin-layout/admin-layout';
+import { AdminPainel } from './admin-painel/admin-painel';
+import { alunoGuard, adminGuard } from './servicos/guardas';
 
 export const routes: Routes = [
   { path: '', component: Home, pathMatch: 'full' },
@@ -17,15 +20,27 @@ export const routes: Routes = [
   { path: 'esqueci-senha', component: EsqueciSenha },
   { path: 'redefinir-senha', component: RedefinirSenha },
 
-  // Telas internas: dividem o menu lateral do Layout
+  // Área do aluno
   {
     path: '',
     component: Layout,
+    canActivate: [alunoGuard],
     children: [
       { path: 'painel', component: Painel },
       { path: 'enviar', component: EnviarTfc },
       { path: 'acervo', component: Acervo },
+    ],
+  },
+
+  // Área da coordenação (admin)
+  {
+    path: 'admin',
+    component: AdminLayout,
+    canActivate: [adminGuard],
+    children: [
+      { path: '', component: AdminPainel, pathMatch: 'full' },
       { path: 'avaliacao', component: Avaliacao },
+      { path: 'acervo', component: Acervo },
     ],
   },
 ];
