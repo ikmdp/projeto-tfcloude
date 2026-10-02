@@ -1,0 +1,38 @@
+<p class="secao">PAINEL</p>
+<h1>{{ saudacao }}, {{ nome }}</h1>
+<p class="subtitulo">Visão geral do acervo digital de Trabalhos Finais de Curso.</p>
+
+<section class="estatisticas" aria-label="Resumo">
+  @for (e of estatisticas; track e.legenda) {
+    <div class="cartao-stat">
+      <span class="valor">{{ e.valor }}</span>
+      <span class="legenda">{{ e.legenda }}</span>
+    </div>
+  }
+</section>
+
+<section class="recentes">
+  <h2>Envios recentes</h2>
+
+  @if (recentes.length === 0) {
+    <p class="vazio">Você ainda não enviou nenhum TFC. Os envios aparecerão aqui.</p>
+  } @else {
+    <ul class="lista">
+      @for (envio of recentes; track envio.id) {
+        <li class="envio">
+          <div>
+            <p class="titulo">{{ envio.titulo }}</p>
+            <p class="detalhe">{{ envio.detalhe }}</p>
+          </div>
+          <span
+            class="status"
+            [class.analise]="envio.status === 'Em análise'"
+            [class.aprovado]="envio.status === 'Aprovado'"
+          >
+            {{ envio.status }}
+          </span>
+        </li>
+      }
+    </ul>
+  }
+</section>
