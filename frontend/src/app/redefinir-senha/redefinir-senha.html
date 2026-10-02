@@ -1,0 +1,85 @@
+<main class="pagina">
+  <section class="cartao">
+    <header class="marca">
+      <h1>TFCloud</h1>
+      <span>ESCOLA TÉCNICA</span>
+    </header>
+
+    @if (!token) {
+      <h2>Link inválido</h2>
+      <p class="mensagem" role="alert">
+        Este link não é válido ou já expirou. Peça um novo link para continuar.
+      </p>
+      <p class="rodape"><a routerLink="/esqueci-senha">Pedir novo link</a></p>
+    } @else if (concluido) {
+      <h2>Senha alterada</h2>
+      <p class="mensagem" role="status">Sua senha foi redefinida. Entre com a nova senha.</p>
+      <a routerLink="/login" class="btn-enviar btn-link">Ir para o login</a>
+    } @else {
+      <h2>Crie uma nova senha</h2>
+      <p class="descricao">Escolha uma senha com pelo menos 8 caracteres.</p>
+
+      <form (ngSubmit)="salvar()">
+        <label for="senha">Nova senha</label>
+        <div class="campo-senha">
+          <input
+            id="senha"
+            name="senha"
+            [type]="mostrarSenha ? 'text' : 'password'"
+            placeholder="Crie uma senha forte"
+            [(ngModel)]="senha"
+            (blur)="tocadoSenha = true"
+            [class.invalido]="erroSenha"
+            [attr.aria-invalid]="!!erroSenha"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="olho"
+            (click)="alternarSenha()"
+            [attr.aria-label]="mostrarSenha ? 'Esconder senha' : 'Mostrar senha'"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+        @if (erroSenha) {
+          <p class="erro" role="alert">{{ erroSenha }}</p>
+        }
+
+        <label for="confirmar">Confirmar nova senha</label>
+        <div class="campo-senha">
+          <input
+            id="confirmar"
+            name="confirmar"
+            [type]="mostrarConfirmar ? 'text' : 'password'"
+            placeholder="Confirme sua senha"
+            [(ngModel)]="confirmarSenha"
+            (blur)="tocadoConfirmar = true"
+            [class.invalido]="erroConfirmar"
+            [attr.aria-invalid]="!!erroConfirmar"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="olho"
+            (click)="alternarConfirmar()"
+            [attr.aria-label]="mostrarConfirmar ? 'Esconder senha' : 'Mostrar senha'"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+        @if (erroConfirmar) {
+          <p class="erro" role="alert">{{ erroConfirmar }}</p>
+        }
+
+        <button type="submit" class="btn-enviar">Salvar nova senha</button>
+      </form>
+    }
+  </section>
+</main>
