@@ -1,0 +1,119 @@
+<main class="pagina">
+  <section class="cartao">
+    <header class="marca">
+      <h1>TFCloud</h1>
+      <span>ESCOLA TÉCNICA</span>
+    </header>
+
+    <h2>Crie seu cadastro</h2>
+    <p class="descricao">Registre-se para enviar e consultar TFCs</p>
+
+    <form (ngSubmit)="criarConta()">
+      <label for="nome">Nome completo</label>
+      <input
+        id="nome"
+        name="nome"
+        type="text"
+        placeholder="Digite seu nome completo"
+        [(ngModel)]="nome"
+        (blur)="marcar('nome')"
+        [class.invalido]="erroNome"
+        [attr.aria-invalid]="!!erroNome"
+        autocomplete="name"
+      />
+      @if (erroNome) {
+        <p class="erro" role="alert">{{ erroNome }}</p>
+      }
+
+      <label for="email">E-mail institucional</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        placeholder="seu.usuario@senai.ap.gov.br"
+        [(ngModel)]="email"
+        (blur)="marcar('email')"
+        [class.invalido]="erroEmail"
+        [attr.aria-invalid]="!!erroEmail"
+        autocomplete="email"
+      />
+      @if (erroEmail) {
+        <p class="erro" role="alert">{{ erroEmail }}</p>
+      }
+
+      <label for="curso">Curso</label>
+      <div class="campo-select">
+        <select id="curso" name="curso" [(ngModel)]="curso">
+          @for (c of cursos; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+        <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+      </div>
+
+      <label for="senha">Senha</label>
+      <div class="campo-senha">
+        <input
+          id="senha"
+          name="senha"
+          [type]="mostrarSenha ? 'text' : 'password'"
+          placeholder="Crie uma senha forte"
+          [(ngModel)]="senha"
+          (blur)="marcar('senha')"
+          [class.invalido]="erroSenha"
+          [attr.aria-invalid]="!!erroSenha"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          class="olho"
+          (click)="alternarSenha()"
+          [attr.aria-label]="mostrarSenha ? 'Esconder senha' : 'Mostrar senha'"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+      @if (erroSenha) {
+        <p class="erro" role="alert">{{ erroSenha }}</p>
+      }
+
+      <label for="confirmar">Confirmar senha</label>
+      <div class="campo-senha">
+        <input
+          id="confirmar"
+          name="confirmar"
+          [type]="mostrarConfirmar ? 'text' : 'password'"
+          placeholder="Confirme sua senha"
+          [(ngModel)]="confirmarSenha"
+          (blur)="marcar('confirmar')"
+          [class.invalido]="erroConfirmar"
+          [attr.aria-invalid]="!!erroConfirmar"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          class="olho"
+          (click)="alternarConfirmar()"
+          [attr.aria-label]="mostrarConfirmar ? 'Esconder senha' : 'Mostrar senha'"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+      @if (erroConfirmar) {
+        <p class="erro" role="alert">{{ erroConfirmar }}</p>
+      }
+
+      <button type="submit" class="btn-criar">Criar conta</button>
+    </form>
+
+    <p class="rodape">Já possui registro? <a routerLink="/login">Fazer login</a></p>
+  </section>
+</main>
