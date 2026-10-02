@@ -69,6 +69,16 @@ export class Envios {
     return false;
   }
 
+
+    /** Todos os envios de todos os usuários, do mais novo para o mais antigo. */
+  listarTodos(): Envio[] {
+    return Object.values(this.lerTudo())
+      .flat()
+      .sort((a, b) => new Date(b.enviadoEm).getTime() - new Date(a.enviadoEm).getTime());
+  }
+
+
+  
   /** Apaga todos os envios de um usuário (usado só nos testes). */
   limpar(email: string) {
     const tudo = this.lerTudo();
