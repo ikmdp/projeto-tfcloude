@@ -28,6 +28,7 @@
             class="status"
             [class.analise]="envio.status === 'Em análise'"
             [class.aprovado]="envio.status === 'Aprovado'"
+                        [class.reprovado]="envio.status === 'Reprovado'"
           >
             {{ envio.status }}
           </span>

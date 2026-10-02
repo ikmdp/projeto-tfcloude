@@ -122,3 +122,7 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
+.status.reprovado {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff6b6b;
+}
