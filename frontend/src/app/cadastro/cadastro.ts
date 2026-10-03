@@ -2,12 +2,13 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Sessao } from '../servicos/sessao';
+import { Logo } from '../logo/logo';
 
 type Campo = 'nome' | 'email' | 'senha' | 'confirmar';
 
 @Component({
   selector: 'app-cadastro',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Logo],
   templateUrl: './cadastro.html',
   styleUrl: './cadastro.css',
 })
