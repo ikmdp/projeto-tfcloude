@@ -1,8 +1,7 @@
 <main class="pagina">
   <section class="cartao">
     <header class="marca">
-      <h1>TFCloud</h1>
-      <span>ESCOLA TÉCNICA</span>
+      <app-logo [tamanho]="56" [empilhado]="true" />
     </header>
 
     @if (!enviado) {
@@ -17,7 +16,7 @@
           id="email"
           name="email"
           type="email"
-          placeholder="seu.usuario@etec.ap.gov.br"
+          placeholder="seu.usuario@etec.sp.gov.br"
           [(ngModel)]="email"
           (blur)="marcar()"
           [class.invalido]="erroEmail"
