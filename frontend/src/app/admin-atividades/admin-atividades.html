@@ -1,0 +1,71 @@
+<p class="secao">COORDENAÇÃO</p>
+<h1>Registro de atividades</h1>
+<p class="subtitulo">
+  Quem fez o quê e quando: envios, avaliações, edições, remoções e cadastros. Guarda as últimas 500 ações.
+</p>
+
+<div class="filtros" role="search">
+  <div class="campo">
+    <label class="so-leitor" for="busca">Buscar nas atividades</label>
+    <input
+      id="busca"
+      type="search"
+      placeholder="Buscar por pessoa, ação ou trabalho..."
+      [ngModel]="consulta"
+      (ngModelChange)="consulta = $event; filtrar()"
+      autocomplete="off"
+    />
+  </div>
+
+  <div class="campo-select">
+    <label class="so-leitor" for="acao">Filtrar por ação</label>
+    <select id="acao" [ngModel]="acaoAtual" (ngModelChange)="acaoAtual = $event; filtrar()">
+      <option value="">Todas as ações</option>
+      @for (a of acoes; track a) {
+        <option [value]="a">{{ a }}</option>
+      }
+    </select>
+    <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9l6 6 6-6"></path>
+    </svg>
+  </div>
+</div>
+
+<p class="contagem" aria-live="polite">
+  {{ filtradas.length }} {{ filtradas.length === 1 ? 'atividade' : 'atividades' }}
+</p>
+
+<section class="cartao">
+  @if (todas.length === 0) {
+    <div class="vazio">
+      <p>Nenhuma atividade registrada ainda.</p>
+      <p class="dica">Envios, avaliações e cadastros aparecem aqui assim que acontecem.</p>
+    </div>
+  } @else if (filtradas.length === 0) {
+    <div class="vazio">
+      <p>Nenhuma atividade encontrada.</p>
+      <p class="dica">Tente outro termo ou outra ação.</p>
+    </div>
+  } @else {
+    <ul class="lista">
+      @for (a of visiveis; track a.id) {
+        <li class="atividade">
+          <div class="info">
+            <p class="acao">{{ a.acao }}</p>
+            <p class="detalhe">{{ a.detalhe }}</p>
+          </div>
+          <div class="quando">
+            <p class="por">{{ a.por }}</p>
+            <p class="data">{{ quando(a.em) }}</p>
+          </div>
+        </li>
+      }
+    </ul>
+
+    @if (filtradas.length > visiveis.length) {
+      <button type="button" class="btn-mais" (click)="mostrarMais()">
+        Mostrar mais ({{ filtradas.length - visiveis.length }})
+      </button>
+    }
+  }
+</section>
