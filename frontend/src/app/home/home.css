@@ -18,19 +18,8 @@
     #1a1b26;
 }
 
-.logo-box {
-  width: 108px;
-  height: 108px;
-  border-radius: 22px;
-  background: #050507;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 14px;
-}
-
-.logo-box img {
-  width: 96px;
+app-logo {
+  margin-bottom: 28px;
 }
 
 h1 {
