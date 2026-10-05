@@ -304,3 +304,27 @@ input.invalido {
     gap: 0;
   }
 }
+.caixa-motivo {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(224, 184, 74, 0.3);
+  border-radius: 8px;
+  background: rgba(224, 184, 74, 0.08);
+}
+
+.caixa-motivo strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #e0b84a;
+}
+
+.caixa-motivo p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #e4e5ee;
+}
+select.invalido {
+  border-color: #ff6b6b;
+}
