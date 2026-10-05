@@ -18,8 +18,14 @@ h1 {
 }
 
 .subtitulo {
-  margin: 0 0 24px;
+  margin: 0 0 6px;
   font-size: 12px;
+  color: #8e90a3;
+}
+
+.regra {
+  margin: 0 0 24px;
+  font-size: 11px;
   color: #8e90a3;
 }
 
@@ -79,15 +85,18 @@ h1 {
 }
 
 .trabalho {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
   padding: 18px 0;
 }
 
 .trabalho + .trabalho {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
 }
 
 .info {
@@ -100,10 +109,155 @@ h1 {
   font-weight: 600;
 }
 
+.selo-versao {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(108, 188, 255, 0.14);
+  color: #6cbcff;
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .detalhe {
   margin: 0;
   font-size: 10px;
   color: #8e90a3;
+}
+
+.link-historico {
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #6cbcff;
+  font-family: inherit;
+  font-size: 10px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Histórico ---------- */
+.historico {
+  margin: 14px 0 0;
+  padding: 0 0 0 14px;
+  list-style: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.evento {
+  padding: 4px 0 10px;
+}
+
+.evento-titulo {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.evento-detalhe {
+  margin: 0;
+  font-size: 10px;
+  color: #8e90a3;
+}
+
+.evento-motivo {
+  margin: 6px 0 0;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #c4c6d4;
+}
+
+/* ---------- Motivo ---------- */
+.painel-motivo {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #1a1c25;
+}
+
+.painel-motivo label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: #15161e;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+textarea::placeholder {
+  color: #6f7183;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #4a69ff;
+}
+
+.erro {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: #ff6b6b;
+}
+
+.painel-botoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-confirmar {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #4a69ff;
+  color: #fff;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-confirmar:hover {
+  background: #5d79ff;
+}
+
+.btn-confirmar.perigo {
+  background: #d94f4f;
+}
+
+.btn-confirmar.perigo:hover {
+  background: #e86060;
+}
+
+.btn-cancelar {
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  background: transparent;
+  color: #c4c6d4;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.btn-cancelar:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* ---------- Botões de ação ---------- */
@@ -131,6 +285,15 @@ h1 {
   cursor: not-allowed;
 }
 
+.acao.ajustes {
+  color: #e0b84a;
+}
+
+.acao.ajustes:hover {
+  background: rgba(224, 184, 74, 0.14);
+  border-color: rgba(224, 184, 74, 0.5);
+}
+
 .acao.reprovar {
   color: #ff6b6b;
 }
@@ -150,7 +313,10 @@ h1 {
 }
 
 .acao:focus-visible,
-.btn-aviso:focus-visible {
+.btn-aviso:focus-visible,
+.btn-confirmar:focus-visible,
+.btn-cancelar:focus-visible,
+.link-historico:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
@@ -172,7 +338,7 @@ h1 {
 }
 
 @media (max-width: 600px) {
-  .trabalho {
+  .linha {
     flex-direction: column;
     align-items: flex-start;
   }
