@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Logo } from '../logo/logo';
 
 @Component({
   selector: 'app-redefinir-senha',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Logo],
   templateUrl: './redefinir-senha.html',
   styleUrl: './redefinir-senha.css',
 })
