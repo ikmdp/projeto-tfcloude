@@ -2,10 +2,11 @@ import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Sessao } from '../servicos/sessao';
+import { Logo } from '../logo/logo';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, Logo],
   templateUrl: './layout.html',
   styleUrl: './layout.css',
 })
