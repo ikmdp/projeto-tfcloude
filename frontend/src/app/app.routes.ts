@@ -11,6 +11,9 @@ import { Acervo } from './acervo/acervo';
 import { Avaliacao } from './avaliacao/avaliacao';
 import { AdminLayout } from './admin-layout/admin-layout';
 import { AdminPainel } from './admin-painel/admin-painel';
+import { AdminCadastros } from './admin-cadastros/admin-cadastros';
+import { AdminAcervo } from './admin-acervo/admin-acervo';
+import { AdminAtividades } from './admin-atividades/admin-atividades';
 import { alunoGuard, adminGuard } from './servicos/guardas';
 
 export const routes: Routes = [
@@ -28,6 +31,7 @@ export const routes: Routes = [
     children: [
       { path: 'painel', component: Painel },
       { path: 'enviar', component: EnviarTfc },
+      { path: 'corrigir/:id', component: EnviarTfc },
       { path: 'acervo', component: Acervo },
     ],
   },
@@ -41,6 +45,9 @@ export const routes: Routes = [
       { path: '', component: AdminPainel, pathMatch: 'full' },
       { path: 'avaliacao', component: Avaliacao },
       { path: 'acervo', component: Acervo },
+      { path: 'gerenciar', component: AdminAcervo },
+      { path: 'cadastros', component: AdminCadastros },
+      { path: 'atividades', component: AdminAtividades },
     ],
   },
 ];
