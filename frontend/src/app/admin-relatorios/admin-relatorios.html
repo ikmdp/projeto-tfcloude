@@ -1,0 +1,118 @@
+<p class="secao">COORDENAÇÃO</p>
+<h1>Relatórios</h1>
+<p class="subtitulo">
+  Visão dos trabalhos por curso e por ano, e o ritmo das avaliações.
+</p>
+
+<div class="exportar">
+  <button type="button" class="btn-exportar" [disabled]="!temDados" (click)="exportarTrabalhos()">
+    Exportar trabalhos (CSV)
+  </button>
+  <button type="button" class="btn-exportar" [disabled]="!temDados" (click)="exportarResumo()">
+    Exportar resumo (CSV)
+  </button>
+</div>
+
+@if (aviso) {
+  <p class="aviso" role="status">{{ aviso }}</p>
+}
+
+@if (!temDados) {
+  <section class="cartao">
+    <div class="vazio">
+      <p>Ainda não há trabalhos enviados.</p>
+      <p class="dica">Os relatórios aparecem aqui assim que os alunos enviarem os primeiros TFCs.</p>
+    </div>
+  </section>
+} @else {
+  <section class="indicadores" aria-label="Indicadores">
+    @for (c of cartoes; track c.legenda) {
+      <div class="indicador">
+        <span class="valor">{{ c.valor }}</span>
+        <span class="legenda">{{ c.legenda }}</span>
+        <span class="dica-indicador">{{ c.dica }}</span>
+      </div>
+    }
+  </section>
+
+  @if (relatorio) {
+    <section class="cartao">
+      <h2>Por curso</h2>
+      <div class="rolagem">
+        <table>
+          <caption class="so-leitor">Trabalhos por curso</caption>
+          <thead>
+            <tr>
+              <th scope="col">Curso</th>
+              <th scope="col">Enviados</th>
+              <th scope="col" class="num">Aprovados</th>
+              <th scope="col" class="num">Reprovados</th>
+              <th scope="col" class="num">Em andamento</th>
+              <th scope="col" class="num">Removidos</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (l of relatorio.porCurso; track l.rotulo) {
+              <tr>
+                <th scope="row">{{ l.rotulo }}</th>
+                <td>
+                  <div class="celula-barra">
+                    <div class="barra" aria-hidden="true">
+                      <span [style.width.%]="largura(l)"></span>
+                    </div>
+                    <span class="num">{{ l.enviados }}</span>
+                  </div>
+                </td>
+                <td class="num">{{ l.aprovados }}</td>
+                <td class="num">{{ l.reprovados }}</td>
+                <td class="num">{{ l.emAndamento }}</td>
+                <td class="num">{{ l.removidos }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">Total</th>
+              <td class="num">{{ relatorio.total.enviados }}</td>
+              <td class="num">{{ relatorio.total.aprovados }}</td>
+              <td class="num">{{ relatorio.total.reprovados }}</td>
+              <td class="num">{{ relatorio.total.emAndamento }}</td>
+              <td class="num">{{ relatorio.total.removidos }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <h2>Por ano de envio</h2>
+      <div class="rolagem">
+        <table>
+          <caption class="so-leitor">Trabalhos por ano</caption>
+          <thead>
+            <tr>
+              <th scope="col">Ano</th>
+              <th scope="col" class="num">Enviados</th>
+              <th scope="col" class="num">Aprovados</th>
+              <th scope="col" class="num">Reprovados</th>
+              <th scope="col" class="num">Em andamento</th>
+              <th scope="col" class="num">Removidos</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (l of relatorio.porAno; track l.rotulo) {
+              <tr>
+                <th scope="row">{{ l.rotulo }}</th>
+                <td class="num">{{ l.enviados }}</td>
+                <td class="num">{{ l.aprovados }}</td>
+                <td class="num">{{ l.reprovados }}</td>
+                <td class="num">{{ l.emAndamento }}</td>
+                <td class="num">{{ l.removidos }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}

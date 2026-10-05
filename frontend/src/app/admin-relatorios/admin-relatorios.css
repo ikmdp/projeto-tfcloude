@@ -1,0 +1,212 @@
+:host {
+  display: block;
+  max-width: 760px;
+}
+
+.secao {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #4aa8f0;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.subtitulo {
+  margin: 0 0 20px;
+  font-size: 12px;
+  color: #8e90a3;
+}
+
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ---------- Exportar ---------- */
+.exportar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.btn-exportar {
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: transparent;
+  color: #c4c6d4;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.btn-exportar:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-exportar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-exportar:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.aviso {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(92, 196, 92, 0.12);
+  color: #8fd88f;
+  font-size: 11px;
+}
+
+/* ---------- Indicadores ---------- */
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.indicador {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px;
+  border-radius: 10px;
+  background: #1f212b;
+}
+
+.valor {
+  font-size: 22px;
+  font-weight: 700;
+  color: #4a69ff;
+}
+
+.legenda {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dica-indicador {
+  font-size: 10px;
+  color: #8e90a3;
+}
+
+/* ---------- Tabelas ---------- */
+.cartao {
+  margin-bottom: 16px;
+  padding: 20px;
+  border-radius: 10px;
+  background: #1f212b;
+}
+
+h2 {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rolagem {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+th,
+td {
+  padding: 12px 10px;
+  text-align: left;
+  font-weight: 400;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+thead th {
+  font-size: 10px;
+  font-weight: 600;
+  color: #8e90a3;
+}
+
+tbody th,
+tfoot th {
+  font-weight: 600;
+}
+
+tfoot th,
+tfoot td {
+  border-bottom: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 700;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+th.num,
+td.num {
+  text-align: right;
+}
+
+.celula-barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.barra {
+  flex: 1;
+  min-width: 60px;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #15161e;
+}
+
+.barra span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #4a69ff;
+}
+
+.celula-barra .num {
+  min-width: 18px;
+  text-align: right;
+}
+
+/* ---------- Sem dados ---------- */
+.vazio {
+  padding: 40px 0;
+  text-align: center;
+  font-size: 13px;
+}
+
+.vazio p {
+  margin: 0 0 6px;
+}
+
+.vazio .dica {
+  font-size: 11px;
+  color: #8e90a3;
+}
