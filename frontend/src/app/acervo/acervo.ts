@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AcervoDados, Trabalho } from '../servicos/acervo-dados';
+import { Catalogo } from '../servicos/catalogo';
 
 @Component({
   selector: 'app-acervo',
@@ -10,8 +11,9 @@ import { AcervoDados, Trabalho } from '../servicos/acervo-dados';
 })
 export class Acervo implements OnInit {
   private dados = inject(AcervoDados);
+  private catalogo = inject(Catalogo);
 
-  opcoes = ['Todos', 'Eletrotécnica', 'Informática', 'Logística', 'Mecânica'];
+  opcoes = ['Todos', ...this.catalogo.listarCursos()];
   cursoAtual = 'Todos';
 
   consulta = ''; // o que está digitado no campo
