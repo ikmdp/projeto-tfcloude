@@ -1,6 +1,19 @@
-<p class="secao">NOVO ENVIO</p>
-<h1>Enviar Trabalho Final de Curso</h1>
-<p class="subtitulo">Preencha os dados e anexe o arquivo em PDF.</p>
+@if (modoCorrecao) {
+  <p class="secao">CORREÇÃO · VERSÃO {{ versaoAtual + 1 }}</p>
+  <h1>Corrigir e reenviar</h1>
+  <p class="subtitulo">
+    Faça os ajustes pedidos pela coordenação e anexe a versão corrigida em PDF.
+  </p>
+
+  <div class="caixa-motivo" role="note">
+    <strong>Ajustes pedidos pela coordenação</strong>
+    <p>{{ motivoAjustes }}</p>
+  </div>
+} @else {
+  <p class="secao">NOVO ENVIO</p>
+  <h1>Enviar Trabalho Final de Curso</h1>
+  <p class="subtitulo">Preencha os dados e anexe o arquivo em PDF.</p>
+}
 
 <form class="cartao" (ngSubmit)="enviar()" novalidate>
   <div
@@ -18,8 +31,13 @@
           <path d="M5 12l7-7 7 7"></path>
         </svg>
       </span>
-      <p class="upload-titulo">Arraste o arquivo PDF aqui</p>
+      <p class="upload-titulo">
+        {{ modoCorrecao ? 'Arraste a versão corrigida (PDF) aqui' : 'Arraste o arquivo PDF aqui' }}
+      </p>
       <p class="upload-dica">ou selecione manualmente · máx. 25 MB</p>
+      @if (modoCorrecao && arquivoAnterior) {
+        <p class="upload-dica">Versão anterior: {{ arquivoAnterior }}</p>
+      }
       <button type="button" class="btn-escolher" (click)="seletor.click()">Escolher arquivo</button>
     } @else {
       <div class="arquivo-escolhido">
@@ -75,16 +93,39 @@
 
     <div class="coluna">
       <label for="orientador">Orientador(a)</label>
-      <input
-        id="orientador"
-        name="orientador"
-        type="text"
-        placeholder="Nome do orientador"
-        [(ngModel)]="orientador"
-        (blur)="marcar('orientador')"
-        [class.invalido]="erroOrientador"
-        [attr.aria-invalid]="!!erroOrientador"
-      />
+
+      @if (usaListaOrientadores) {
+        <div class="campo-select">
+          <select
+            id="orientador"
+            name="orientador"
+            [(ngModel)]="orientador"
+            (blur)="marcar('orientador')"
+            [class.invalido]="erroOrientador"
+            [attr.aria-invalid]="!!erroOrientador"
+          >
+            <option value="">Selecione</option>
+            @for (o of orientadores; track o) {
+              <option [value]="o">{{ o }}</option>
+            }
+          </select>
+          <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
+        </div>
+      } @else {
+        <input
+          id="orientador"
+          name="orientador"
+          type="text"
+          placeholder="Nome do orientador"
+          [(ngModel)]="orientador"
+          (blur)="marcar('orientador')"
+          [class.invalido]="erroOrientador"
+          [attr.aria-invalid]="!!erroOrientador"
+        />
+      }
+
       @if (erroOrientador) {
         <p class="erro" role="alert">{{ erroOrientador }}</p>
       }
@@ -113,5 +154,7 @@
     <p class="erro" role="alert">{{ erroPalavras }}</p>
   }
 
-  <button type="submit" class="btn-enviar">Enviar para avaliação</button>
+  <button type="submit" class="btn-enviar">
+    {{ modoCorrecao ? 'Reenviar para avaliação' : 'Enviar para avaliação' }}
+  </button>
 </form>
