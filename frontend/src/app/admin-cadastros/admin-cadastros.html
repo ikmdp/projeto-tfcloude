@@ -1,0 +1,104 @@
+<p class="secao">COORDENAÇÃO</p>
+<h1>Cursos e orientadores</h1>
+<p class="subtitulo">
+  Estas listas alimentam o cadastro dos alunos, o envio de TFC e os filtros do acervo.
+</p>
+
+@if (aviso) {
+  <p class="aviso" role="status">{{ aviso }}</p>
+}
+
+<div class="colunas">
+  <section class="cartao">
+    <h2>Cursos</h2>
+    <p class="dica">Um curso só pode ser removido se não tiver trabalhos.</p>
+
+    <form class="adicionar" (ngSubmit)="adicionarCurso()">
+      <label class="so-leitor" for="novo-curso">Novo curso</label>
+      <input
+        id="novo-curso"
+        name="novoCurso"
+        type="text"
+        placeholder="Ex: Edificações"
+        [(ngModel)]="novoCurso"
+        (input)="erroCurso = ''"
+        [class.invalido]="erroCurso"
+        autocomplete="off"
+      />
+      <button type="submit" class="btn-add">Adicionar</button>
+    </form>
+    @if (erroCurso) {
+      <p class="erro" role="alert">{{ erroCurso }}</p>
+    }
+
+    @if (cursos.length === 0) {
+      <p class="vazio">Nenhum curso cadastrado.</p>
+    } @else {
+      <ul class="itens">
+        @for (c of cursos; track c.nome) {
+          <li class="item">
+            <div>
+              <p class="nome">{{ c.nome }}</p>
+              <p class="uso">{{ c.trabalhos === 1 ? '1 trabalho' : c.trabalhos + ' trabalhos' }}</p>
+            </div>
+            <button
+              type="button"
+              class="btn-remover"
+              [disabled]="c.trabalhos > 0"
+              [attr.title]="c.trabalhos > 0 ? 'Há trabalhos neste curso' : null"
+              [attr.aria-label]="'Remover ' + c.nome"
+              (click)="removerCurso(c)"
+            >
+              Remover
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="cartao">
+    <h2>Orientadores</h2>
+    <p class="dica">
+      Com orientadores cadastrados, o aluno escolhe de uma lista em vez de digitar o nome.
+    </p>
+
+    <form class="adicionar" (ngSubmit)="adicionarOrientador()">
+      <label class="so-leitor" for="novo-orientador">Novo orientador(a)</label>
+      <input
+        id="novo-orientador"
+        name="novoOrientador"
+        type="text"
+        placeholder="Nome do orientador(a)"
+        [(ngModel)]="novoOrientador"
+        (input)="erroOrientador = ''"
+        [class.invalido]="erroOrientador"
+        autocomplete="off"
+      />
+      <button type="submit" class="btn-add">Adicionar</button>
+    </form>
+    @if (erroOrientador) {
+      <p class="erro" role="alert">{{ erroOrientador }}</p>
+    }
+
+    @if (orientadores.length === 0) {
+      <p class="vazio">Nenhum orientador cadastrado. Os alunos digitam o nome à mão.</p>
+    } @else {
+      <ul class="itens">
+        @for (o of orientadores; track o) {
+          <li class="item">
+            <p class="nome">{{ o }}</p>
+            <button
+              type="button"
+              class="btn-remover"
+              [attr.aria-label]="'Remover ' + o"
+              (click)="removerOrientador(o)"
+            >
+              Remover
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>
