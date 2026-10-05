@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Logo } from '../logo/logo';
+
+
 
 @Component({
   selector: 'app-esqueci-senha',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Logo],
   templateUrl: './esqueci-senha.html',
   styleUrl: './esqueci-senha.css',
 })
