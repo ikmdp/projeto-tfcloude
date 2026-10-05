@@ -1,8 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Sessao } from '../servicos/sessao';
 import { Envios } from '../servicos/envios';
+import { Atividades } from '../servicos/atividades';
+import { Catalogo } from '../servicos/catalogo';
 
 type Campo = 'titulo' | 'orientador' | 'palavras';
 
@@ -15,13 +18,27 @@ const MAX_PALAVRAS = 8;
   templateUrl: './enviar-tfc.html',
   styleUrl: './enviar-tfc.css',
 })
-export class EnviarTfc {
+export class EnviarTfc implements OnInit {
   private router = inject(Router);
+  private rota = inject(ActivatedRoute);
   private sessao = inject(Sessao);
   private envios = inject(Envios);
+  private atividades = inject(Atividades);
+  private catalogo = inject(Catalogo);
+  private ehNavegador = isPlatformBrowser(inject(PLATFORM_ID));
+
+  // Preenchido só no modo "corrigir e reenviar"
+  idCorrecao: string | null = this.rota.snapshot.paramMap.get('id');
+  motivoAjustes = '';
+  versaoAtual = 1;
+  arquivoAnterior = '';
+
+  // Listas cadastradas pela coordenação
+  cursos = this.catalogo.listarCursos();
+  orientadores = this.catalogo.listarOrientadores();
 
   titulo = '';
-  curso = 'Eletrotécnica';
+  curso = this.cursos[0] ?? '';
   orientador = '';
   entradaPalavra = '';
   palavras: string[] = [];
@@ -37,7 +54,48 @@ export class EnviarTfc {
     palavras: false,
   };
 
-  cursos = ['Eletrotécnica', 'Informática', 'Mecânica', 'Edificações'];
+  get modoCorrecao(): boolean {
+    return this.idCorrecao !== null;
+  }
+
+  /** Com orientadores cadastrados o aluno escolhe da lista; sem eles, digita o nome. */
+  get usaListaOrientadores(): boolean {
+    return this.orientadores.length > 0;
+  }
+
+  ngOnInit() {
+    if (!this.idCorrecao || !this.ehNavegador) return;
+
+    const usuario = this.sessao.usuario;
+    const envio = usuario ? this.envios.obterDoUsuario(usuario.email, this.idCorrecao) : null;
+
+    // Só dá para corrigir um trabalho seu que foi devolvido para ajustes
+    if (!envio || envio.status !== 'Ajustes solicitados') {
+      this.router.navigate(['/painel']);
+      return;
+    }
+
+    this.titulo = envio.titulo;
+    this.curso = envio.curso;
+    this.orientador = envio.orientador ?? '';
+    this.palavras = [...(envio.palavrasChave ?? [])];
+    this.motivoAjustes = envio.motivo ?? '';
+    this.versaoAtual = envio.versao;
+    this.arquivoAnterior = envio.arquivoNome ?? '';
+
+    // Mantém na lista o curso e o orientador que o trabalho já tinha,
+    // mesmo que a coordenação tenha mudado o cadastro depois.
+    if (!this.cursos.includes(this.curso)) {
+      this.cursos = [...this.cursos, this.curso];
+    }
+    if (
+      this.usaListaOrientadores &&
+      this.orientador &&
+      !this.orientadores.includes(this.orientador)
+    ) {
+      this.orientadores = [...this.orientadores, this.orientador];
+    }
+  }
 
   // ---------- Regras ----------
   get tituloValido(): boolean {
@@ -65,8 +123,10 @@ export class EnviarTfc {
   }
 
   get erroOrientador(): string {
-    if (!this.deveMostrar('orientador')) return '';
-    return this.orientadorValido ? '' : 'Informe o nome do orientador(a).';
+    if (!this.deveMostrar('orientador') || this.orientadorValido) return '';
+    return this.usaListaOrientadores
+      ? 'Selecione o orientador(a).'
+      : 'Informe o nome do orientador(a).';
   }
 
   get erroPalavras(): string {
@@ -76,7 +136,12 @@ export class EnviarTfc {
 
   get erroArquivoMostrado(): string {
     if (this.erroArquivo) return this.erroArquivo;
-    return this.tentouEnviar && !this.arquivo ? 'Anexe o arquivo do trabalho em PDF.' : '';
+    if (this.tentouEnviar && !this.arquivo) {
+      return this.modoCorrecao
+        ? 'Anexe a versão corrigida do trabalho em PDF.'
+        : 'Anexe o arquivo do trabalho em PDF.';
+    }
+    return '';
   }
 
   marcar(campo: Campo) {
@@ -189,8 +254,35 @@ export class EnviarTfc {
 
     // Provisório: guarda só os dados do envio (nome e tamanho do PDF).
     // O arquivo em si será enviado ao backend na Parte 2.
+    if (this.idCorrecao) {
+      const reenviado = this.envios.reenviar(
+        usuario.email,
+        this.idCorrecao,
+        {
+          titulo: this.titulo.trim(),
+          curso: this.curso,
+          orientador: this.orientador.trim(),
+          palavrasChave: [...this.palavras],
+          arquivoNome: this.arquivo.name,
+          arquivoTamanho: this.arquivo.size,
+        },
+        usuario.nome,
+      );
+
+      if (reenviado) {
+        this.atividades.registrar(
+          usuario.nome,
+          'Trabalho reenviado',
+          `${reenviado.titulo} · versão ${reenviado.versao}`,
+        );
+      }
+      this.router.navigate(['/painel']);
+      return;
+    }
+
+    const titulo = this.titulo.trim();
     this.envios.adicionar(usuario.email, {
-      titulo: this.titulo.trim(),
+      titulo,
       autor: usuario.nome,
       curso: this.curso,
       orientador: this.orientador.trim(),
@@ -200,6 +292,7 @@ export class EnviarTfc {
       enviadoEm: new Date().toISOString(),
       status: 'Em análise',
     });
+    this.atividades.registrar(usuario.nome, 'Trabalho enviado', titulo);
 
     this.router.navigate(['/painel']);
   }
