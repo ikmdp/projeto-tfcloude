@@ -14,6 +14,7 @@ import { AdminPainel } from './admin-painel/admin-painel';
 import { AdminCadastros } from './admin-cadastros/admin-cadastros';
 import { AdminAcervo } from './admin-acervo/admin-acervo';
 import { AdminAtividades } from './admin-atividades/admin-atividades';
+import { AdminRelatorios } from './admin-relatorios/admin-relatorios';
 import { alunoGuard, adminGuard } from './servicos/guardas';
 
 export const routes: Routes = [
@@ -46,6 +47,7 @@ export const routes: Routes = [
       { path: 'avaliacao', component: Avaliacao },
       { path: 'acervo', component: Acervo },
       { path: 'gerenciar', component: AdminAcervo },
+      { path: 'relatorios', component: AdminRelatorios },
       { path: 'cadastros', component: AdminCadastros },
       { path: 'atividades', component: AdminAtividades },
     ],
