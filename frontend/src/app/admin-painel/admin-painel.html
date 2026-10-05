@@ -37,8 +37,10 @@
           <span
             class="status"
             [class.analise]="envio.status === 'Em análise'"
+            [class.ajustes]="envio.status === 'Ajustes solicitados'"
             [class.aprovado]="envio.status === 'Aprovado'"
             [class.reprovado]="envio.status === 'Reprovado'"
+                        [class.removido]="envio.status === 'Removido'"
           >
             {{ envio.status }}
           </span>

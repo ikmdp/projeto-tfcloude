@@ -1,7 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Sessao } from '../servicos/sessao';
-import { Envio, Envios, StatusEnvio } from '../servicos/envios';
+import { Envios, StatusEnvio, dataUltimoEnvio } from '../servicos/envios';
+import { descreverQuando } from '../servicos/formatacao';
 
 interface Estatistica {
   valor: number;
@@ -37,38 +38,24 @@ export class AdminPainel implements OnInit {
     this.saudacao = this.calcularSaudacao();
 
     const lista = this.envios.listarTodos();
-    this.aguardando = lista.filter((e) => e.status === 'Em análise').length;
+    const total = (status: StatusEnvio) => lista.filter((e) => e.status === status).length;
+
+    this.aguardando = total('Em análise');
 
     this.estatisticas = [
       { valor: lista.length, legenda: 'trabalhos enviados' },
       { valor: this.aguardando, legenda: 'aguardando avaliação' },
-      { valor: lista.filter((e) => e.status === 'Aprovado').length, legenda: 'aprovados' },
-      { valor: lista.filter((e) => e.status === 'Reprovado').length, legenda: 'reprovados' },
+      { valor: total('Ajustes solicitados'), legenda: 'em ajustes' },
+      { valor: total('Aprovado'), legenda: 'aprovados' },
+      { valor: total('Reprovado'), legenda: 'reprovados' },
     ];
 
-    this.recentes = lista.slice(0, 5).map((e) => this.paraRecente(e));
-  }
-
-  private paraRecente(e: Envio): EnvioRecente {
-    return {
+    this.recentes = lista.slice(0, 5).map((e) => ({
       id: e.id,
       titulo: e.titulo,
-      detalhe: `${e.autor} · ${e.curso} · ${this.descreverQuando(e.enviadoEm)}`,
+      detalhe: `${e.autor} · ${e.curso} · ${e.versao > 1 ? 'reenviado' : 'enviado'} ${descreverQuando(dataUltimoEnvio(e))}`,
       status: e.status,
-    };
-  }
-
-  private descreverQuando(iso: string): string {
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    const data = new Date(iso);
-    data.setHours(0, 0, 0, 0);
-
-    const dias = Math.round((hoje.getTime() - data.getTime()) / 86400000);
-    if (dias <= 0) return 'enviado hoje';
-    if (dias === 1) return 'enviado ontem';
-    if (dias <= 30) return `enviado há ${dias} dias`;
-    return `enviado em ${data.toLocaleDateString('pt-BR')}`;
+    }));
   }
 
   private calcularSaudacao(): string {

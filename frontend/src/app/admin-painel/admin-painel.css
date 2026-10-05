@@ -148,4 +148,11 @@ h2 {
 .status.reprovado {
   background: rgba(255, 107, 107, 0.12);
   color: #ff6b6b;
+}.status.ajustes {
+  background: rgba(108, 188, 255, 0.12);
+  color: #6cbcff;
+}
+.status.removido {
+  background: rgba(142, 144, 163, 0.14);
+  color: #8e90a3;
 }
