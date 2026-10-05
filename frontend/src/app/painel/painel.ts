@@ -1,6 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Sessao } from '../servicos/sessao';
-import { Envio, Envios, StatusEnvio } from '../servicos/envios';
+import { Envio, Envios, StatusEnvio, dataUltimoEnvio } from '../servicos/envios';
+import { descreverQuando } from '../servicos/formatacao';
 
 interface Estatistica {
   valor: number;
@@ -12,11 +14,19 @@ interface EnvioRecente {
   titulo: string;
   detalhe: string;
   status: StatusEnvio;
+  motivo: string;
+}
+
+interface Pendente {
+  id: string;
+  titulo: string;
+  detalhe: string;
+  motivo: string;
 }
 
 @Component({
   selector: 'app-painel',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './painel.html',
   styleUrl: './painel.css',
 })
@@ -30,6 +40,7 @@ export class Painel implements OnInit {
 
   estatisticas: Estatistica[] = [];
   recentes: EnvioRecente[] = [];
+  pendentes: Pendente[] = [];
 
   ngOnInit() {
     this.email = this.sessao.usuario?.email ?? '';
@@ -55,29 +66,28 @@ export class Painel implements OnInit {
       { valor: doMes, legenda: 'enviados este mês' },
     ];
 
-    this.recentes = lista.slice(0, 5).map((e) => this.paraRecente(e));
+    this.pendentes = lista
+      .filter((e) => e.status === 'Ajustes solicitados')
+      .map((e) => this.paraPendente(e));
+
+    this.recentes = lista.slice(0, 5).map((e) => ({
+      id: e.id,
+      titulo: e.titulo,
+      detalhe: `${e.autor} · ${e.curso} · ${e.versao > 1 ? 'reenviado' : 'enviado'} ${descreverQuando(dataUltimoEnvio(e))}`,
+      status: e.status,
+            motivo: e.status === 'Reprovado' || e.status === 'Removido' ? (e.motivo ?? '') : '',
+    }));
   }
 
-  private paraRecente(e: Envio): EnvioRecente {
+  private paraPendente(e: Envio): Pendente {
+    const devolucao = [...e.historico].reverse().find((ev) => ev.tipo === 'ajustes');
+    const quando = devolucao ? ` · devolvido ${descreverQuando(devolucao.em)}` : '';
     return {
       id: e.id,
       titulo: e.titulo,
-      detalhe: `${e.autor} · ${e.curso} · ${this.descreverQuando(e.enviadoEm)}`,
-      status: e.status,
+      detalhe: `${e.curso}${quando}`,
+      motivo: e.motivo ?? 'A coordenação não informou detalhes.',
     };
-  }
-
-  private descreverQuando(iso: string): string {
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    const data = new Date(iso);
-    data.setHours(0, 0, 0, 0);
-
-    const dias = Math.round((hoje.getTime() - data.getTime()) / 86400000);
-    if (dias <= 0) return 'enviado hoje';
-    if (dias === 1) return 'enviado ontem';
-    if (dias <= 30) return `enviado há ${dias} dias`;
-    return `enviado em ${data.toLocaleDateString('pt-BR')}`;
   }
 
   private calcularSaudacao(): string {

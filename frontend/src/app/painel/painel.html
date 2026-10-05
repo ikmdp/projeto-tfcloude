@@ -11,6 +11,24 @@
   }
 </section>
 
+@if (pendentes.length > 0) {
+  <section class="ajustes" aria-label="Ajustes solicitados">
+    <h2>Ajustes solicitados</h2>
+    <ul class="lista">
+      @for (p of pendentes; track p.id) {
+        <li class="envio">
+          <div>
+            <p class="titulo">{{ p.titulo }}</p>
+            <p class="detalhe">{{ p.detalhe }}</p>
+            <p class="motivo">{{ p.motivo }}</p>
+          </div>
+          <a class="btn-corrigir" [routerLink]="['/corrigir', p.id]">Corrigir e reenviar</a>
+        </li>
+      }
+    </ul>
+  </section>
+}
+
 <section class="recentes">
   <h2>Envios recentes</h2>
 
@@ -23,12 +41,17 @@
           <div>
             <p class="titulo">{{ envio.titulo }}</p>
             <p class="detalhe">{{ envio.detalhe }}</p>
+            @if (envio.motivo) {
+              <p class="motivo">Motivo: {{ envio.motivo }}</p>
+            }
           </div>
           <span
             class="status"
             [class.analise]="envio.status === 'Em análise'"
+            [class.ajustes]="envio.status === 'Ajustes solicitados'"
             [class.aprovado]="envio.status === 'Aprovado'"
-                        [class.reprovado]="envio.status === 'Reprovado'"
+            [class.reprovado]="envio.status === 'Reprovado'"
+                        [class.removido]="envio.status === 'Removido'"
           >
             {{ envio.status }}
           </span>
