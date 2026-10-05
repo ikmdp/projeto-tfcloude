@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { Logo } from '../logo/logo';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [Logo],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
