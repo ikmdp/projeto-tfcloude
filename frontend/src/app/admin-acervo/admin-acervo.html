@@ -1,0 +1,182 @@
+<p class="secao">COORDENAÇÃO</p>
+<h1>Gerenciar acervo</h1>
+<p class="subtitulo">Edite os dados dos trabalhos aprovados ou retire um trabalho do acervo.</p>
+
+@if (aviso) {
+  <p class="aviso" role="status">{{ aviso }}</p>
+}
+
+<div class="abas" role="group" aria-label="Situação dos trabalhos">
+  <button
+    type="button"
+    class="aba"
+    [class.ativa]="aba === 'acervo'"
+    [attr.aria-pressed]="aba === 'acervo'"
+    (click)="trocarAba('acervo')"
+  >
+    No acervo ({{ noAcervo.length }})
+  </button>
+  <button
+    type="button"
+    class="aba"
+    [class.ativa]="aba === 'removidos'"
+    [attr.aria-pressed]="aba === 'removidos'"
+    (click)="trocarAba('removidos')"
+  >
+    Removidos ({{ removidos.length }})
+  </button>
+</div>
+
+<div class="busca" role="search">
+  <label class="so-leitor" for="busca">Buscar trabalhos</label>
+  <input
+    id="busca"
+    type="search"
+    placeholder="Buscar por título, autor ou tema..."
+    [ngModel]="consulta"
+    (ngModelChange)="consulta = $event; filtrar()"
+    autocomplete="off"
+  />
+</div>
+
+<div class="filtros" role="group" aria-label="Filtrar por curso">
+  @for (curso of opcoes; track curso) {
+    <button
+      type="button"
+      class="filtro"
+      [class.ativo]="cursoAtual === curso"
+      [attr.aria-pressed]="cursoAtual === curso"
+      (click)="escolherCurso(curso)"
+    >
+      {{ curso }}
+    </button>
+  }
+</div>
+
+<section class="cartao">
+  @if (lista.length === 0) {
+    <div class="vazio">
+      @if (aba === 'acervo') {
+        <p>Nenhum trabalho encontrado.</p>
+        <p class="dica">Os trabalhos aprovados na fila de avaliação aparecem aqui.</p>
+      } @else {
+        <p>Nenhum trabalho removido.</p>
+        <p class="dica">Os trabalhos retirados do acervo aparecem aqui.</p>
+      }
+    </div>
+  } @else {
+    <ul class="lista">
+      @for (e of lista; track e.id) {
+        <li class="trabalho">
+          <div class="linha">
+            <div class="info">
+              <p class="titulo">{{ e.titulo }}</p>
+              <p class="detalhe">{{ detalhe(e) }}</p>
+              @if (aba === 'removidos' && e.motivo) {
+                <p class="motivo">Motivo da remoção: {{ e.motivo }}</p>
+              }
+            </div>
+
+            <div class="acoes">
+              @if (aba === 'acervo') {
+                <button type="button" class="btn-acao" (click)="iniciarEdicao(e)">Editar</button>
+                <button type="button" class="btn-acao perigo" (click)="iniciarRemocao(e)">Remover</button>
+              } @else {
+                <button type="button" class="btn-acao" (click)="restaurar(e)">Restaurar</button>
+              }
+            </div>
+          </div>
+
+          @if (editandoId === e.id) {
+            <form class="painel" (ngSubmit)="salvarEdicao()">
+              <label for="ed-titulo">Título do trabalho</label>
+              <input
+                id="ed-titulo"
+                name="edTitulo"
+                type="text"
+                [(ngModel)]="edTitulo"
+                (input)="erroEdicao = ''"
+              />
+
+              <div class="duas-colunas">
+                <div>
+                  <label for="ed-curso">Curso</label>
+                  <div class="campo-select">
+                    <select id="ed-curso" name="edCurso" [(ngModel)]="edCurso">
+                      @for (c of cursosEdicao; track c) {
+                        <option [value]="c">{{ c }}</option>
+                      }
+                    </select>
+                    <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9l6 6 6-6"></path>
+                    </svg>
+                  </div>
+                </div>
+
+                <div>
+                  <label for="ed-orientador">Orientador(a)</label>
+                  <input
+                    id="ed-orientador"
+                    name="edOrientador"
+                    type="text"
+                    list="lista-orientadores"
+                    [(ngModel)]="edOrientador"
+                    (input)="erroEdicao = ''"
+                  />
+                  <datalist id="lista-orientadores">
+                    @for (o of orientadores; track o) {
+                      <option [value]="o"></option>
+                    }
+                  </datalist>
+                </div>
+              </div>
+
+              <label for="ed-palavras">Palavras-chave (separadas por vírgula)</label>
+              <input
+                id="ed-palavras"
+                name="edPalavras"
+                type="text"
+                [(ngModel)]="edPalavras"
+                (input)="erroEdicao = ''"
+              />
+
+              @if (erroEdicao) {
+                <p class="erro" role="alert">{{ erroEdicao }}</p>
+              }
+
+              <div class="painel-botoes">
+                <button type="submit" class="btn-confirmar">Salvar alterações</button>
+                <button type="button" class="btn-cancelar" (click)="cancelarEdicao()">Cancelar</button>
+              </div>
+            </form>
+          }
+
+          @if (removendoId === e.id) {
+            <div class="painel">
+              <label for="motivo-remocao">Motivo da remoção</label>
+              <textarea
+                id="motivo-remocao"
+                rows="3"
+                [(ngModel)]="motivoRemocao"
+                (input)="erroRemocao = ''"
+                placeholder="Ex: Trabalho enviado com o arquivo errado. O aluno vai reenviar."
+              ></textarea>
+              <p class="dica-painel">
+                O trabalho sai do acervo e o aluno vê este motivo no painel dele. Você pode restaurá-lo depois.
+              </p>
+              @if (erroRemocao) {
+                <p class="erro" role="alert">{{ erroRemocao }}</p>
+              }
+              <div class="painel-botoes">
+                <button type="button" class="btn-confirmar perigo" (click)="confirmarRemocao(e)">
+                  Confirmar remoção
+                </button>
+                <button type="button" class="btn-cancelar" (click)="cancelarRemocao()">Cancelar</button>
+              </div>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>
