@@ -1,0 +1,30 @@
+<span class="logo" [class.empilhado]="empilhado">
+  <svg
+    [attr.width]="tamanho"
+    [attr.height]="tamanho"
+    viewBox="0 0 80 80"
+    focusable="false"
+    [attr.aria-hidden]="nome ? 'true' : null"
+    [attr.role]="nome ? null : 'img'"
+    [attr.aria-label]="nome ? null : 'TFCloud'"
+  >
+    <rect width="80" height="80" rx="20" fill="#4a69ff"></rect>
+    <g transform="translate(7.5 19)" fill="#ffffff">
+      <circle cx="16" cy="28" r="11"></circle>
+      <circle cx="31" cy="18" r="15"></circle>
+      <circle cx="48" cy="26" r="12"></circle>
+      <rect x="16" y="28" width="32" height="11"></rect>
+    </g>
+    <rect x="33" y="30" width="14" height="22" rx="2" fill="#4a69ff"></rect>
+    <rect x="36" y="36" width="8" height="2" fill="#ffffff"></rect>
+    <rect x="36" y="41" width="8" height="2" fill="#ffffff"></rect>
+    <rect x="36" y="46" width="5" height="2" fill="#ffffff"></rect>
+  </svg>
+
+  @if (nome) {
+    <span class="texto">
+      <strong [style.font-size.px]="fonteNome">tf<span>cloud</span></strong>
+      <small [style.font-size.px]="fonteSubtitulo">Escola Técnica</small>
+    </span>
+  }
+</span>
