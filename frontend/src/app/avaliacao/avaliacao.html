@@ -1,6 +1,9 @@
 <p class="secao">COORDENAÇÃO</p>
 <h1>Fila de avaliação</h1>
 <p class="subtitulo">Trabalhos aguardando aprovação para entrar no acervo.</p>
+<p class="regra">
+  Pedir ajustes devolve o trabalho para o aluno corrigir e reenviar. Reprovar é definitivo.
+</p>
 
 @if (aviso) {
   <div class="aviso" role="status">
@@ -22,48 +25,121 @@
     <ul class="lista">
       @for (item of fila; track item.id) {
         <li class="trabalho">
-          <div class="info">
-            <p class="titulo">{{ item.titulo }}</p>
-            <p class="detalhe">{{ item.detalhe }}</p>
+          <div class="linha">
+            <div class="info">
+              <p class="titulo">
+                {{ item.titulo }}
+                @if (item.versao > 1) {
+                  <span class="selo-versao">Reenviado · versão {{ item.versao }}</span>
+                }
+              </p>
+              <p class="detalhe">{{ item.detalhe }}</p>
+              <button
+                type="button"
+                class="link-historico"
+                (click)="alternarHistorico(item.id)"
+                [attr.aria-expanded]="historicoAberto === item.id"
+              >
+                {{ historicoAberto === item.id ? 'Ocultar histórico' : 'Ver histórico' }}
+              </button>
+            </div>
+
+            <div class="acoes">
+              <button
+                type="button"
+                class="acao"
+                disabled
+                title="O PDF fica disponível quando o backend guardar os arquivos"
+                [attr.aria-label]="'Abrir PDF de ' + item.titulo"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <path d="M14 2v6h6"></path>
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                class="acao ajustes"
+                title="Pedir ajustes"
+                (click)="abrirDecisao(item, 'ajustes')"
+                [attr.aria-label]="'Pedir ajustes em ' + item.titulo"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                class="acao reprovar"
+                title="Reprovar"
+                (click)="abrirDecisao(item, 'reprovado')"
+                [attr.aria-label]="'Reprovar ' + item.titulo"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 6L6 18"></path>
+                  <path d="M6 6l12 12"></path>
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                class="acao aprovar"
+                title="Aprovar"
+                (click)="aprovar(item)"
+                [attr.aria-label]="'Aprovar ' + item.titulo"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6L9 17l-5-5"></path>
+                </svg>
+              </button>
+            </div>
           </div>
 
-          <div class="acoes">
-            <button
-              type="button"
-              class="acao"
-              disabled
-              title="O PDF fica disponível quando o backend guardar os arquivos"
-              [attr.aria-label]="'Abrir PDF de ' + item.titulo"
-            >
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <path d="M14 2v6h6"></path>
-              </svg>
-            </button>
+          @if (historicoAberto === item.id) {
+            <ol class="historico">
+              @for (ev of item.historico; track $index) {
+                <li class="evento">
+                  <p class="evento-titulo">{{ ev.rotulo }}</p>
+                  <p class="evento-detalhe">{{ ev.quando }} · {{ ev.por }}</p>
+                  @if (ev.motivo) {
+                    <p class="evento-motivo">{{ ev.motivo }}</p>
+                  }
+                </li>
+              }
+            </ol>
+          }
 
-            <button
-              type="button"
-              class="acao reprovar"
-              (click)="reprovar(item)"
-              [attr.aria-label]="'Reprovar ' + item.titulo"
-            >
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 6L6 18"></path>
-                <path d="M6 6l12 12"></path>
-              </svg>
-            </button>
-
-            <button
-              type="button"
-              class="acao aprovar"
-              (click)="aprovar(item)"
-              [attr.aria-label]="'Aprovar ' + item.titulo"
-            >
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 6L9 17l-5-5"></path>
-              </svg>
-            </button>
-          </div>
+          @if (decisaoId === item.id) {
+            <div class="painel-motivo">
+              <label [attr.for]="'motivo-' + item.id">
+                {{ decisaoTipo === 'ajustes' ? 'O que o aluno precisa corrigir?' : 'Motivo da reprovação' }}
+              </label>
+              <textarea
+                [id]="'motivo-' + item.id"
+                rows="3"
+                [(ngModel)]="motivo"
+                (input)="erroMotivo = ''"
+                [placeholder]="decisaoTipo === 'ajustes' ? 'Ex: Faltam as referências no padrão ABNT e o resumo está acima de 250 palavras.' : 'Explique por que o trabalho não pode ser aceito.'"
+              ></textarea>
+              @if (erroMotivo) {
+                <p class="erro" role="alert">{{ erroMotivo }}</p>
+              }
+              <div class="painel-botoes">
+                <button
+                  type="button"
+                  class="btn-confirmar"
+                  [class.perigo]="decisaoTipo === 'reprovado'"
+                  (click)="confirmarDecisao(item)"
+                >
+                  {{ decisaoTipo === 'ajustes' ? 'Devolver ao aluno' : 'Confirmar reprovação' }}
+                </button>
+                <button type="button" class="btn-cancelar" (click)="cancelarDecisao()">Cancelar</button>
+              </div>
+            </div>
+          }
         </li>
       }
     </ul>
