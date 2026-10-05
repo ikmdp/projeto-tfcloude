@@ -1,6 +1,5 @@
 <main class="home">
-  <div class="logo-box">
-  </div>
+  <app-logo [tamanho]="88" [empilhado]="true" />
 
   <h1>O acervo digital definitivo para<br />Trabalhos Finais de Curso</h1>
 
@@ -11,5 +10,12 @@
 
   <button type="button" class="btn-comecar" (click)="comecar()">Começar</button>
 
-  
+  <div class="stats">
+    @for (item of estatisticas; track item.legenda) {
+      <div class="stat">
+        <span class="valor" [class.verde]="item.verde">{{ item.valor }}</span>
+        <span class="legenda">{{ item.legenda }}</span>
+      </div>
+    }
+  </div>
 </main>
