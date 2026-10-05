@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Sessao } from '../servicos/sessao';
+import { Catalogo } from '../servicos/catalogo';
 import { Logo } from '../logo/logo';
 
 type Campo = 'nome' | 'email' | 'senha' | 'confirmar';
@@ -14,10 +15,12 @@ type Campo = 'nome' | 'email' | 'senha' | 'confirmar';
 })
 export class Cadastro {
   private sessao = inject(Sessao);
+  private catalogo = inject(Catalogo);
 
   nome = '';
   email = '';
-  curso = 'Eletrotécnica';
+  cursos = this.catalogo.listarCursos();
+  curso = this.cursos[0] ?? '';
   senha = '';
   confirmarSenha = '';
 
@@ -31,8 +34,6 @@ export class Cadastro {
     senha: false,
     confirmar: false,
   };
-
-  cursos = ['Eletrotécnica', 'Informática', 'Mecânica', 'Edificações'];
 
   // ---------- Regras (verdadeiro = campo correto) ----------
   get nomeValido(): boolean {
