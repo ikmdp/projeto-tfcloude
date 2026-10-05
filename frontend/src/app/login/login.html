@@ -1,8 +1,7 @@
 <main class="pagina">
   <section class="cartao">
     <header class="marca">
-      <h1>TFCloud</h1>
-      <span>ESCOLA TÉCNICA</span>
+      <app-logo [tamanho]="56" [empilhado]="true" />
     </header>
 
     <h2>Acesse sua conta</h2>
@@ -47,10 +46,10 @@
           <input type="checkbox" name="lembrar" [(ngModel)]="lembrar" />
           Lembrar neste dispositivo
         </label>
-       <a routerLink="/esqueci-senha">Esqueci minha senha</a>
+        <a routerLink="/esqueci-senha">Esqueci minha senha</a>
       </div>
-      
-            @if (erro) {
+
+      @if (erro) {
         <p class="erro" role="alert">{{ erro }}</p>
       }
 
