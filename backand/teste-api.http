@@ -1,0 +1,155 @@
+@url = http://localhost:3000/api
+@emailProfessor = prof@teste.com
+
+### 1. Login da coordenação (usa a ADMIN_SENHA do .env)
+# @name loginAdmin
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "senha": "{{$dotenv ADMIN_SENHA}}"
+}
+
+### 2. Lista de professores sem login (deve dar 401)
+GET {{url}}/professores
+
+### 3. Cadastro de um aluno e login (para testar o bloqueio)
+POST {{url}}/auth/cadastro
+Content-Type: application/json
+
+{
+  "nome": "Maria Souza",
+  "email": "aluno@teste.com",
+  "senha": "senha1234"
+}
+
+### 4. Login do aluno
+# @name loginAluno
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "aluno@teste.com",
+  "senha": "senha1234"
+}
+
+### 5. Aluno tentando listar professores (deve dar 403)
+GET {{url}}/professores
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 6. Coordenação cadastra o professor (deve dar 201)
+# @name criarProfessor
+POST {{url}}/professores
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "nome": "Carlos Lima",
+  "email": "{{emailProfessor}}"
+}
+
+### 7. Mesmo e-mail de novo (deve dar 409)
+POST {{url}}/professores
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "nome": "Carlos Lima",
+  "email": "{{emailProfessor}}"
+}
+
+### 8. E-mail da coordenação como professor (deve dar 400)
+POST {{url}}/professores
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "nome": "Intruso",
+  "email": "admin@gmail.com"
+}
+
+### 9. Professor tenta entrar antes de ativar (deve dar 401)
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{emailProfessor}}",
+  "senha": "qualquersenha"
+}
+
+### 10. Lista de professores (situação: convite pendente)
+GET {{url}}/professores
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 11. Criar a senha com o link do e-mail
+# Copie o token do link (os 64 caracteres depois de "token=") do Mailtrap ou do terminal.
+@tokenConvite = COLE-AQUI-O-TOKEN
+# @name ativar
+POST {{url}}/auth/definir-senha
+Content-Type: application/json
+
+{
+  "token": "{{tokenConvite}}",
+  "senha": "senhaProf123"
+}
+
+### 12. Usar o mesmo link de novo (deve dar 400)
+POST {{url}}/auth/definir-senha
+Content-Type: application/json
+
+{
+  "token": "{{tokenConvite}}",
+  "senha": "outraSenha123"
+}
+
+### 13. Login do professor com a senha nova
+# @name loginProf
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{emailProfessor}}",
+  "senha": "senhaProf123"
+}
+
+### 14. Professor tenta listar professores (deve dar 403)
+GET {{url}}/professores
+Authorization: Bearer {{loginProf.response.body.token}}
+
+### 15. Reenviar convite de quem já ativou (deve dar 400)
+POST {{url}}/professores/{{criarProfessor.response.body.professor.id}}/reenviar-convite
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 16. Esqueci minha senha (sempre 200, com a mesma mensagem)
+POST {{url}}/auth/esqueci-senha
+Content-Type: application/json
+
+{
+  "email": "{{emailProfessor}}"
+}
+
+### 17. Esqueci minha senha com e-mail que não existe (200, mesma mensagem)
+POST {{url}}/auth/esqueci-senha
+Content-Type: application/json
+
+{
+  "email": "ninguem@teste.com"
+}
+
+### 18. Coordenação remove o professor (deve dar 204)
+DELETE {{url}}/professores/{{criarProfessor.response.body.professor.id}}
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 19. Sessão antiga do professor depois de removido (deve dar 401)
+GET {{url}}/auth/eu
+Authorization: Bearer {{loginProf.response.body.token}}
+
+### 20. Login do professor removido (deve dar 401)
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{emailProfessor}}",
+  "senha": "senhaProf123"
+}
