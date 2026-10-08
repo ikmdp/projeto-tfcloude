@@ -2,7 +2,7 @@ import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { Sessao } from '../servicos/sessao';
+import { Sessao, rotaInicial } from '../servicos/sessao';
 import { Logo } from '../logo/logo';
 
 const CHAVE_EMAIL = 'tfcloud_email_lembrado';
@@ -54,7 +54,7 @@ export class Login implements OnInit {
     // Login de mentira: aceita qualquer senha.
     // Na Parte 2 isso vira uma chamada ao backend, que devolve o papel do usuário.
     this.sessao.entrar(this.email, this.lembrar);
-    this.router.navigate([this.sessao.ehAdmin ? '/admin' : '/painel']);
+        this.router.navigate([rotaInicial(this.sessao.usuario?.papel ?? 'aluno')]);
   }
 
   private salvarOuLimparEmail() {

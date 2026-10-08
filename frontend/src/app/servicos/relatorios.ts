@@ -21,9 +21,14 @@ export interface Resumo {
 export interface Relatorio {
   resumo: Resumo;
   porCurso: LinhaTabela[];
+  porTurno: LinhaTabela[];
+  porProfessor: LinhaTabela[];
   porAno: LinhaTabela[];
   total: LinhaTabela;
 }
+
+const NAO_INFORMADO = 'Não informado';
+const ORDEM_TURNOS = ['Manhã', 'Tarde', 'Noite', 'Integral'];
 
 function linhaVazia(rotulo: string): LinhaTabela {
   return { rotulo, enviados: 0, aprovados: 0, reprovados: 0, emAndamento: 0, removidos: 0 };
@@ -35,6 +40,27 @@ function contar(linha: LinhaTabela, status: StatusEnvio) {
   else if (status === 'Reprovado') linha.reprovados += 1;
   else if (status === 'Removido') linha.removidos += 1;
   else linha.emAndamento += 1; // Em análise ou Ajustes solicitados
+}
+
+function obter(mapa: Map<string, LinhaTabela>, rotulo: string): LinhaTabela {
+  let linha = mapa.get(rotulo);
+  if (!linha) {
+    linha = linhaVazia(rotulo);
+    mapa.set(rotulo, linha);
+  }
+  return linha;
+}
+
+/** Ordena e deixa "Não informado" sempre por último. */
+function ordenar(
+  mapa: Map<string, LinhaTabela>,
+  comparar: (a: string, b: string) => number,
+): LinhaTabela[] {
+  return [...mapa.values()].sort((a, b) => {
+    if (a.rotulo === NAO_INFORMADO) return 1;
+    if (b.rotulo === NAO_INFORMADO) return -1;
+    return comparar(a.rotulo, b.rotulo);
+  });
 }
 
 /** "12 min", "5 h" ou "2,5 dias". */
@@ -52,11 +78,21 @@ export function formatarDuracao(ms: number): string {
 
 @Injectable({ providedIn: 'root' })
 export class Relatorios {
-  calcular(lista: Envio[], cursosCadastrados: string[]): Relatorio {
+  calcular(
+    lista: Envio[],
+    cursosCadastrados: string[],
+    professoresCadastrados: string[],
+  ): Relatorio {
     const cursos = new Map<string, LinhaTabela>();
     for (const nome of cursosCadastrados) cursos.set(nome, linhaVazia(nome));
 
-    const anos = new Map<number, LinhaTabela>();
+    const turnos = new Map<string, LinhaTabela>();
+    for (const nome of ORDEM_TURNOS) turnos.set(nome, linhaVazia(nome));
+
+    const professores = new Map<string, LinhaTabela>();
+    for (const nome of professoresCadastrados) professores.set(nome, linhaVazia(nome));
+
+    const anos = new Map<string, LinhaTabela>();
     const total = linhaVazia('Total');
 
     const duracoes: number[] = [];
@@ -67,22 +103,16 @@ export class Relatorios {
     const agora = Date.now();
 
     for (const envio of lista) {
-      let linhaCurso = cursos.get(envio.curso);
-      if (!linhaCurso) {
-        linhaCurso = linhaVazia(envio.curso);
-        cursos.set(envio.curso, linhaCurso);
-      }
+      const ano = String(new Date(envio.enviadoEm).getFullYear());
 
-      const ano = new Date(envio.enviadoEm).getFullYear();
-      let linhaAno = anos.get(ano);
-      if (!linhaAno) {
-        linhaAno = linhaVazia(String(ano));
-        anos.set(ano, linhaAno);
-      }
-
-      contar(linhaCurso, envio.status);
-      contar(linhaAno, envio.status);
-      contar(total, envio.status);
+      const linhas = [
+        obter(cursos, envio.curso || NAO_INFORMADO),
+        obter(turnos, envio.turno || NAO_INFORMADO),
+        obter(professores, envio.enviadoPor || NAO_INFORMADO),
+        obter(anos, ano),
+        total,
+      ];
+      for (const linha of linhas) contar(linha, envio.status);
 
       // Tempo de avaliação: do envio (ou reenvio) até cada decisão
       let inicio: number | null = null;
@@ -114,6 +144,7 @@ export class Relatorios {
     }
 
     const decididas = aprovacoes + reprovacoes;
+    const alfabetica = (a: string, b: string) => a.localeCompare(b, 'pt-BR');
 
     return {
       resumo: {
@@ -125,8 +156,17 @@ export class Relatorios {
         maiorEsperaMs: maiorEspera,
         naFila,
       },
-      porCurso: [...cursos.values()].sort((a, b) => a.rotulo.localeCompare(b.rotulo, 'pt-BR')),
-      porAno: [...anos.entries()].sort((a, b) => b[0] - a[0]).map(([, linha]) => linha),
+      porCurso: ordenar(cursos, alfabetica),
+      porTurno: ordenar(turnos, (a, b) => {
+        const ia = ORDEM_TURNOS.indexOf(a);
+        const ib = ORDEM_TURNOS.indexOf(b);
+        if (ia === -1 && ib === -1) return alfabetica(a, b);
+        if (ia === -1) return 1;
+        if (ib === -1) return -1;
+        return ia - ib;
+      }),
+      porProfessor: ordenar(professores, alfabetica),
+      porAno: ordenar(anos, (a, b) => Number(b) - Number(a)),
       total,
     };
   }

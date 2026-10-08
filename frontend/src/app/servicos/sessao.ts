@@ -1,7 +1,8 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { EMAIL_ADMIN, Professores } from './professores';
 
-export type Papel = 'aluno' | 'admin';
+export type Papel = 'aluno' | 'professor' | 'admin';
 
 export interface UsuarioLogado {
   nome: string;
@@ -12,14 +13,19 @@ export interface UsuarioLogado {
 const CHAVE_SESSAO = 'tfcloud_sessao';
 const CHAVE_NOMES = 'tfcloud_nomes';
 
-// Provisório: no backend, o papel virá do banco de dados e não do e-mail.
-const EMAIL_ADMIN = 'admin@gmail.com';
+/** Tela inicial de cada perfil. */
+export function rotaInicial(papel: Papel): string {
+  if (papel === 'admin') return '/admin';
+  if (papel === 'professor') return '/painel';
+  return '/aluno';
+}
 
 @Injectable({ providedIn: 'root' })
 export class Sessao {
   private ehNavegador = isPlatformBrowser(inject(PLATFORM_ID));
+  private professores = inject(Professores);
 
-  /** Quem está logado agora (ou null). */
+  /** Quem está logado agora (ou null). O perfil é conferido a cada leitura. */
   get usuario(): UsuarioLogado | null {
     if (!this.ehNavegador) return null;
     try {
@@ -34,6 +40,10 @@ export class Sessao {
 
   get ehAdmin(): boolean {
     return this.usuario?.papel === 'admin';
+  }
+
+  get ehProfessor(): boolean {
+    return this.usuario?.papel === 'professor';
   }
 
   /** Só o primeiro nome, para a saudação. */
@@ -58,7 +68,7 @@ export class Sessao {
   entrar(email: string, lembrar: boolean) {
     if (!this.ehNavegador) return;
     const usuario: UsuarioLogado = {
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
       nome: this.descobrirNome(email),
       papel: this.papelDoEmail(email),
     };
@@ -81,14 +91,21 @@ export class Sessao {
     }
   }
 
+  // Provisório: no backend, o perfil virá do banco de dados.
   private papelDoEmail(email: string): Papel {
-    return email.trim().toLowerCase() === EMAIL_ADMIN ? 'admin' : 'aluno';
+    const chave = email.trim().toLowerCase();
+    if (chave === EMAIL_ADMIN) return 'admin';
+    return this.professores.existe(chave) ? 'professor' : 'aluno';
   }
 
   private descobrirNome(email: string): string {
-    if (this.papelDoEmail(email) === 'admin') return 'Coordenação';
-
     const chave = email.trim().toLowerCase();
+
+    if (chave === EMAIL_ADMIN) return 'Coordenação';
+
+    const professor = this.professores.obter(chave);
+    if (professor) return professor.nome;
+
     const salvo = this.lerNomes()[chave];
     if (salvo) return salvo;
 

@@ -9,6 +9,9 @@ export interface Trabalho {
   ano: number;
   tamanho?: number; // em bytes
   palavrasChave: string[];
+  orientador?: string;
+  turma?: string;
+  turno?: string;
 }
 
 // Trabalhos de exemplo (os do design). Quando o backend existir, saem daqui.
@@ -65,6 +68,9 @@ export class AcervoDados {
       ano: new Date(e.enviadoEm).getFullYear(),
       tamanho: e.arquivoTamanho,
       palavrasChave: e.palavrasChave ?? [],
+      orientador: e.orientador,
+      turma: e.turma,
+      turno: e.turno,
     }));
 
     return [...aprovados, ...EXEMPLOS].sort((a, b) => b.ano - a.ano);

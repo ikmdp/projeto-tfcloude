@@ -4,7 +4,6 @@ import { Envios } from './envios';
 
 interface Dados {
   cursos: string[];
-  orientadores: string[];
 }
 
 const CHAVE_CATALOGO = 'tfcloud_catalogo';
@@ -19,10 +18,6 @@ export class Catalogo {
     return [...this.ler().cursos];
   }
 
-  listarOrientadores(): string[] {
-    return [...this.ler().orientadores];
-  }
-
   /** Quantos trabalhos já usam esse curso. */
   trabalhosDoCurso(curso: string): number {
     const alvo = this.normalizar(curso);
@@ -32,11 +27,15 @@ export class Catalogo {
   /** Devolve a mensagem de erro, ou texto vazio se deu certo. */
   adicionarCurso(nome: string): string {
     const dados = this.ler();
-    const limpo = this.limpar(nome);
-    const erro = this.validar(limpo, dados.cursos, 2, 'curso');
-    if (erro) return erro;
+    const limpo = nome.trim().replace(/\s+/g, ' ');
 
-    dados.cursos = this.ordenar([...dados.cursos, limpo]);
+    if (limpo.length < 2) return 'Informe o nome do curso (mínimo de 2 letras).';
+    if (limpo.length > 60) return 'O nome pode ter no máximo 60 caracteres.';
+
+    const repetido = dados.cursos.some((c) => this.normalizar(c) === this.normalizar(limpo));
+    if (repetido) return 'Este curso já está cadastrado.';
+
+    dados.cursos = [...dados.cursos, limpo].sort((a, b) => a.localeCompare(b, 'pt-BR'));
     this.gravar(dados);
     return '';
   }
@@ -53,38 +52,7 @@ export class Catalogo {
     return '';
   }
 
-  adicionarOrientador(nome: string): string {
-    const dados = this.ler();
-    const limpo = this.limpar(nome);
-    const erro = this.validar(limpo, dados.orientadores, 3, 'orientador(a)');
-    if (erro) return erro;
-
-    dados.orientadores = this.ordenar([...dados.orientadores, limpo]);
-    this.gravar(dados);
-    return '';
-  }
-
-  /** Trabalhos antigos mantêm o nome do orientador que já tinham. */
-  removerOrientador(nome: string) {
-    const dados = this.ler();
-    dados.orientadores = dados.orientadores.filter((o) => o !== nome);
-    this.gravar(dados);
-  }
-
   // ---------- Internos ----------
-
-  private validar(nome: string, existentes: string[], minimo: number, rotulo: string): string {
-    if (nome.length < minimo) return `Informe o nome do ${rotulo} (mínimo de ${minimo} letras).`;
-    if (nome.length > 60) return 'O nome pode ter no máximo 60 caracteres.';
-
-    const repetido = existentes.some((e) => this.normalizar(e) === this.normalizar(nome));
-    if (repetido) return `Este ${rotulo} já está cadastrado.`;
-    return '';
-  }
-
-  private limpar(texto: string): string {
-    return texto.trim().replace(/\s+/g, ' ');
-  }
 
   /** Tira acentos e maiúsculas para comparar "Logística" com "logistica". */
   private normalizar(texto: string): string {
@@ -95,22 +63,15 @@ export class Catalogo {
       .trim();
   }
 
-  private ordenar(lista: string[]): string[] {
-    return [...lista].sort((a, b) => a.localeCompare(b, 'pt-BR'));
-  }
-
   private ler(): Dados {
-    const padrao: Dados = { cursos: [...CURSOS_INICIAIS], orientadores: [] };
+    const padrao: Dados = { cursos: [...CURSOS_INICIAIS] };
     if (!this.ehNavegador) return padrao;
 
     try {
       const bruto = localStorage.getItem(CHAVE_CATALOGO);
       if (!bruto) return padrao;
       const salvo = JSON.parse(bruto) as Partial<Dados>;
-      return {
-        cursos: salvo.cursos ?? padrao.cursos,
-        orientadores: salvo.orientadores ?? [],
-      };
+      return { cursos: salvo.cursos ?? padrao.cursos };
     } catch {
       return padrao;
     }

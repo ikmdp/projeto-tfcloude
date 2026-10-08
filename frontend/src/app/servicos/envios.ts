@@ -30,25 +30,33 @@ export interface EventoEnvio {
 export interface Envio {
   id: string;
   titulo: string;
+  /** Nome(s) do(s) aluno(s) já juntos para exibição ("Ana e Bruno"). */
   autor: string;
+  alunos: string[];
+  turma: string;
+  turno: string;
   curso: string;
   enviadoEm: string; // data do primeiro envio
   status: StatusEnvio;
   versao: number;
   historico: EventoEnvio[];
   motivo?: string; // motivo da última devolução, reprovação ou remoção
-  orientador?: string;
+  orientador?: string; // professor orientador
+  enviadoPor: string; // professor que fez o envio
   palavrasChave?: string[];
   arquivoNome?: string;
   arquivoTamanho?: number;
 }
 
-export type NovoEnvio = Omit<Envio, 'id' | 'versao' | 'historico' | 'motivo'>;
+export type NovoEnvio = Omit<Envio, 'id' | 'versao' | 'historico' | 'motivo' | 'autor'>;
 
 export interface Correcao {
   titulo: string;
   curso: string;
   orientador: string;
+  alunos: string[];
+  turma: string;
+  turno: string;
   palavrasChave: string[];
   arquivoNome: string;
   arquivoTamanho: number;
@@ -59,6 +67,9 @@ export interface DadosEdicao {
   curso: string;
   orientador: string;
   palavrasChave: string[];
+  alunos?: string[];
+  turma?: string;
+  turno?: string;
 }
 
 const CHAVE_ENVIOS = 'tfcloud_envios';
@@ -68,6 +79,12 @@ const STATUS_DA_DECISAO: Record<Decisao, StatusEnvio> = {
   reprovado: 'Reprovado',
   ajustes: 'Ajustes solicitados',
 };
+
+/** "Ana", "Ana e Bruno" ou "Ana, Bruno e Carla". */
+export function resumoAlunos(alunos: string[]): string {
+  if (alunos.length <= 2) return alunos.join(' e ');
+  return `${alunos.slice(0, -1).join(', ')} e ${alunos[alunos.length - 1]}`;
+}
 
 /** Data do envio mais recente (o original ou o último reenvio). */
 export function dataUltimoEnvio(envio: Envio): string {
@@ -84,7 +101,7 @@ export class Envios {
 
   // ---------- Consultas ----------
 
-  /** Envios de um usuário, do mais novo para o mais antigo. */
+  /** Envios feitos por um usuário (professor), do mais novo para o mais antigo. */
   listar(email: string): Envio[] {
     const lista = this.lerTudo()[this.chave(email)] ?? [];
     return this.maisNovosPrimeiro(lista);
@@ -121,14 +138,15 @@ export class Envios {
     return lista.find((e) => e.id === id) ?? null;
   }
 
-  // ---------- Ações do aluno ----------
+  // ---------- Ações do professor ----------
 
   adicionar(email: string, dados: NovoEnvio): Envio {
     const envio: Envio = {
       ...dados,
       id: this.novoId(),
+      autor: resumoAlunos(dados.alunos),
       versao: 1,
-      historico: [{ tipo: 'enviado', em: dados.enviadoEm, por: dados.autor }],
+      historico: [{ tipo: 'enviado', em: dados.enviadoEm, por: dados.enviadoPor }],
     };
     const tudo = this.lerTudo();
     const chave = this.chave(email);
@@ -137,7 +155,7 @@ export class Envios {
     return envio;
   }
 
-  /** O aluno corrige o trabalho devolvido e reenvia para a fila. */
+  /** O professor corrige o trabalho devolvido e reenvia para a fila. */
   reenviar(email: string, id: string, dados: Correcao, por: string): Envio | null {
     const tudo = this.lerTudo();
     const envio = (tudo[this.chave(email)] ?? []).find((e) => e.id === id);
@@ -146,6 +164,10 @@ export class Envios {
     envio.titulo = dados.titulo;
     envio.curso = dados.curso;
     envio.orientador = dados.orientador;
+    envio.alunos = dados.alunos;
+    envio.autor = resumoAlunos(dados.alunos);
+    envio.turma = dados.turma;
+    envio.turno = dados.turno;
     envio.palavrasChave = dados.palavrasChave;
     envio.arquivoNome = dados.arquivoNome;
     envio.arquivoTamanho = dados.arquivoTamanho;
@@ -203,6 +225,14 @@ export class Envios {
     envio.curso = dados.curso;
     envio.orientador = dados.orientador;
     envio.palavrasChave = dados.palavrasChave;
+
+    if (dados.alunos?.length) {
+      envio.alunos = dados.alunos;
+      envio.autor = resumoAlunos(dados.alunos);
+    }
+    if (dados.turma !== undefined) envio.turma = dados.turma;
+    if (dados.turno !== undefined) envio.turno = dados.turno;
+
     envio.historico.push({ tipo: 'editado', em: new Date().toISOString(), por, motivo: resumo });
 
     this.gravarTudo(tudo);
@@ -293,20 +323,26 @@ export class Envios {
 
   private normalizar(e: Partial<Envio>): Envio {
     const enviadoEm = e.enviadoEm ?? new Date().toISOString();
-    const autor = e.autor ?? '';
+    const autorAntigo = e.autor ?? '';
+    const alunos = e.alunos?.length ? e.alunos : autorAntigo ? [autorAntigo] : [];
+
     return {
       id: e.id ?? this.novoId(),
       titulo: e.titulo ?? '',
-      autor,
+      autor: alunos.length ? resumoAlunos(alunos) : autorAntigo,
+      alunos,
+      turma: e.turma ?? '',
+      turno: e.turno ?? '',
       curso: e.curso ?? '',
       enviadoEm,
       status: e.status ?? 'Em análise',
       versao: e.versao ?? 1,
       historico: e.historico?.length
         ? e.historico
-        : [{ tipo: 'enviado', em: enviadoEm, por: autor }],
+        : [{ tipo: 'enviado', em: enviadoEm, por: e.enviadoPor ?? autorAntigo }],
       motivo: e.motivo,
       orientador: e.orientador,
+      enviadoPor: e.enviadoPor ?? '',
       palavrasChave: e.palavrasChave,
       arquivoNome: e.arquivoNome,
       arquivoTamanho: e.arquivoTamanho,
