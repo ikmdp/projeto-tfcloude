@@ -1,0 +1,144 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: #181a22;
+  color: #fff;
+}
+
+.lateral {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 12px 20px;
+  background: #15161e;
+}
+
+.marca {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding: 0 8px;
+}
+
+.selo {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(92, 196, 92, 0.16);
+  color: #8fd88f;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item {
+  display: block;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 6px;
+  color: #c4c6d4;
+  font-size: 12px;
+  text-align: left;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.item.ativo {
+  background: #6cbcff;
+  color: #0b1220;
+  font-weight: 600;
+}
+
+.item:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.rodape-lateral {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-left: 8px;
+}
+
+.usuario {
+  flex: 1;
+  margin: 0;
+  overflow: hidden;
+  font-size: 11px;
+  color: #8e90a3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #4a69ff;
+  cursor: pointer;
+}
+
+.icone:hover {
+  color: #7d93ff;
+}
+
+.icone:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.conteudo {
+  min-width: 0;
+  padding: 48px 32px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 800px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  .lateral {
+    padding: 16px 12px 12px;
+  }
+
+  .marca {
+    margin-bottom: 12px;
+  }
+
+  .menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .item {
+    width: auto;
+  }
+
+  .rodape-lateral {
+    margin-top: 12px;
+    padding-left: 0;
+  }
+}

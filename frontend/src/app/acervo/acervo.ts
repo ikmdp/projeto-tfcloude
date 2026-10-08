@@ -68,7 +68,7 @@ export class Acervo implements OnInit {
       if (!palavras.length) return true;
 
       const texto = this.normalizar(
-        [t.titulo, t.autor, t.curso, String(t.ano), ...t.palavrasChave].join(' '),
+                [t.titulo, t.autor, t.curso, t.orientador ?? '', t.turma ?? '', String(t.ano), ...t.palavrasChave].join(' '),
       );
       return palavras.every((p) => texto.includes(p));
     });

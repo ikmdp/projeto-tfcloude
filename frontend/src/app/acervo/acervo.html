@@ -46,10 +46,15 @@
           <div>
             <p class="titulo">{{ t.titulo }}</p>
             <p class="detalhe">{{ t.autor }} · {{ t.curso }} · {{ t.ano }}</p>
-          </div>
-          <span class="arquivo">{{ formatarTamanho(t.tamanho) }}</span>
-        </li>
-      }
-    </ul>
-  }
+                        @if (t.orientador) {
+              <p class="detalhe">
+                Orientador(a): {{ t.orientador }}{{ t.turma ? ' · ' + t.turma : '' }}{{ t.turno ? ' · ' + t.turno : '' }}
+              </p>
+              }
+            </div>
+            <span class="arquivo">{{ formatarTamanho(t.tamanho) }}</span>
+          </li>
+        }
+      </ul>
+    }
 </section>

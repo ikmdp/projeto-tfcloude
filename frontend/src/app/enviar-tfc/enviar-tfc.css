@@ -328,3 +328,92 @@ input.invalido {
 select.invalido {
   border-color: #ff6b6b;
 }
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.grupo-alunos {
+  min-width: 0;
+  margin: 0 0 20px;
+  padding: 0;
+  border: none;
+}
+
+.grupo-alunos legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.linha-aluno {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.linha-aluno input[type='text'] {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.grupo-alunos .erro {
+  margin: 4px 0 8px;
+}
+
+.btn-remover-aluno {
+  flex-shrink: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  background: transparent;
+  color: #c4c6d4;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.btn-remover-aluno:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-adicionar-aluno {
+  padding: 8px 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  background: transparent;
+  color: #9db0ff;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.btn-adicionar-aluno:hover {
+  border-color: #4a69ff;
+  color: #fff;
+}
+
+.btn-remover-aluno:focus-visible,
+.btn-adicionar-aluno:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.enviado-por {
+  margin: 0 0 12px;
+  font-size: 11px;
+  color: #8e90a3;
+}
+
+.enviado-por strong {
+  color: #e4e5ee;
+  font-weight: 600;
+}

@@ -12,7 +12,9 @@
 } @else {
   <p class="secao">NOVO ENVIO</p>
   <h1>Enviar Trabalho Final de Curso</h1>
-  <p class="subtitulo">Preencha os dados e anexe o arquivo em PDF.</p>
+  <p class="subtitulo">
+    Envie o TFC em nome dos alunos: informe os autores, a turma e o professor orientador.
+  </p>
 }
 
 <form class="cartao" (ngSubmit)="enviar()" novalidate>
@@ -76,6 +78,81 @@
     <p class="erro" role="alert">{{ erroTitulo }}</p>
   }
 
+  <fieldset class="grupo-alunos">
+    <legend>Aluno(s) autor(es) do trabalho</legend>
+
+    @for (a of alunos; track a.id; let i = $index) {
+      <div class="linha-aluno">
+        <label class="so-leitor" [attr.for]="'aluno-' + a.id">Nome do aluno {{ i + 1 }}</label>
+        <input
+          [id]="'aluno-' + a.id"
+          [name]="'aluno-' + a.id"
+          type="text"
+          placeholder="Nome completo do aluno"
+          [(ngModel)]="a.nome"
+          (blur)="marcar('alunos')"
+          [class.invalido]="erroAlunos"
+          [attr.aria-invalid]="!!erroAlunos"
+          autocomplete="off"
+        />
+        @if (alunos.length > 1) {
+          <button
+            type="button"
+            class="btn-remover-aluno"
+            (click)="removerAluno(a.id)"
+            [attr.aria-label]="'Remover aluno ' + (i + 1)"
+          >
+            Remover
+          </button>
+        }
+      </div>
+    }
+
+    @if (erroAlunos) {
+      <p class="erro" role="alert">{{ erroAlunos }}</p>
+    }
+
+    @if (alunos.length < maxAlunos) {
+      <button type="button" class="btn-adicionar-aluno" (click)="adicionarAluno()">
+        + Adicionar outro aluno
+      </button>
+    }
+  </fieldset>
+
+  <div class="linha">
+    <div class="coluna">
+      <label for="turma">Turma</label>
+      <input
+        id="turma"
+        name="turma"
+        type="text"
+        placeholder="Ex: 3º A"
+        [(ngModel)]="turma"
+        (blur)="marcar('turma')"
+        [class.invalido]="erroTurma"
+        [attr.aria-invalid]="!!erroTurma"
+        autocomplete="off"
+      />
+      @if (erroTurma) {
+        <p class="erro" role="alert">{{ erroTurma }}</p>
+      }
+    </div>
+
+    <div class="coluna">
+      <label for="turno">Turno</label>
+      <div class="campo-select">
+        <select id="turno" name="turno" [(ngModel)]="turno">
+          @for (t of turnos; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+        <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
   <div class="linha">
     <div class="coluna">
       <label for="curso">Curso</label>
@@ -92,40 +169,25 @@
     </div>
 
     <div class="coluna">
-      <label for="orientador">Orientador(a)</label>
-
-      @if (usaListaOrientadores) {
-        <div class="campo-select">
-          <select
-            id="orientador"
-            name="orientador"
-            [(ngModel)]="orientador"
-            (blur)="marcar('orientador')"
-            [class.invalido]="erroOrientador"
-            [attr.aria-invalid]="!!erroOrientador"
-          >
-            <option value="">Selecione</option>
-            @for (o of orientadores; track o) {
-              <option [value]="o">{{ o }}</option>
-            }
-          </select>
-          <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9l6 6 6-6"></path>
-          </svg>
-        </div>
-      } @else {
-        <input
+      <label for="orientador">Professor orientador(a)</label>
+      <div class="campo-select">
+        <select
           id="orientador"
           name="orientador"
-          type="text"
-          placeholder="Nome do orientador"
           [(ngModel)]="orientador"
           (blur)="marcar('orientador')"
           [class.invalido]="erroOrientador"
           [attr.aria-invalid]="!!erroOrientador"
-        />
-      }
-
+        >
+          <option value="">Selecione</option>
+          @for (p of professores; track p) {
+            <option [value]="p">{{ p }}</option>
+          }
+        </select>
+        <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+      </div>
       @if (erroOrientador) {
         <p class="erro" role="alert">{{ erroOrientador }}</p>
       }
@@ -153,6 +215,8 @@
   @if (erroPalavras) {
     <p class="erro" role="alert">{{ erroPalavras }}</p>
   }
+
+  <p class="enviado-por">Enviado por: <strong>{{ enviadoPor }}</strong></p>
 
   <button type="submit" class="btn-enviar">
     {{ modoCorrecao ? 'Reenviar para avaliação' : 'Enviar para avaliação' }}

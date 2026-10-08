@@ -1,0 +1,32 @@
+<div class="app">
+  <aside class="lateral">
+    <div class="marca">
+      <app-logo [tamanho]="48" />
+      <span class="selo">Aluno</span>
+    </div>
+
+    <nav class="menu" aria-label="Menu do aluno">
+      <a
+        class="item"
+        routerLink="/aluno"
+        routerLinkActive="ativo"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+      >Consultar acervo</a>
+    </nav>
+
+    <div class="rodape-lateral">
+      <p class="usuario">{{ nome }}</p>
+      <button type="button" class="icone" aria-label="Sair da conta" (click)="sair()">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M4 21a8 8 0 0 1 16 0"></path>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <main class="conteudo">
+    <router-outlet />
+  </main>
+</div>

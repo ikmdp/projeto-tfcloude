@@ -16,6 +16,7 @@ interface ItemFila {
   id: string;
   titulo: string;
   detalhe: string;
+    responsaveis: string;
   versao: number;
   historico: ItemHistorico[];
 }
@@ -149,7 +150,8 @@ export class Avaliacao implements OnInit {
       id: e.id,
       titulo: e.titulo,
       versao: e.versao,
-      detalhe: `${e.autor} · ${e.curso} · ${e.versao > 1 ? 'reenviado' : 'enviado'} ${descreverQuando(dataUltimoEnvio(e))}`,
+            detalhe: `${e.autor} · ${e.curso}${e.turma ? ' · ' + e.turma : ''}${e.turno ? ' · ' + e.turno : ''} · ${e.versao > 1 ? 'reenviado' : 'enviado'} ${descreverQuando(dataUltimoEnvio(e))}`,
+      responsaveis: `Orientador(a): ${e.orientador || 'não informado'} · Enviado por: ${e.enviadoPor || 'não informado'}`,
       historico: e.historico.map((ev) => ({
         rotulo: rotuloEvento(ev.tipo),
         quando: formatarDataHora(ev.em),

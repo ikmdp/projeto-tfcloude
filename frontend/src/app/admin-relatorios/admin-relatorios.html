@@ -1,7 +1,7 @@
 <p class="secao">COORDENAÇÃO</p>
 <h1>Relatórios</h1>
 <p class="subtitulo">
-  Visão dos trabalhos por curso e por ano, e o ritmo das avaliações.
+  Visão dos trabalhos por curso, turno, professor e ano, e o ritmo das avaliações.
 </p>
 
 <div class="exportar">
@@ -21,7 +21,7 @@
   <section class="cartao">
     <div class="vazio">
       <p>Ainda não há trabalhos enviados.</p>
-      <p class="dica">Os relatórios aparecem aqui assim que os alunos enviarem os primeiros TFCs.</p>
+      <p class="dica">Os relatórios aparecem aqui assim que os professores enviarem os primeiros TFCs.</p>
     </div>
   </section>
 } @else {
@@ -36,83 +36,56 @@
   </section>
 
   @if (relatorio) {
-    <section class="cartao">
-      <h2>Por curso</h2>
-      <div class="rolagem">
-        <table>
-          <caption class="so-leitor">Trabalhos por curso</caption>
-          <thead>
-            <tr>
-              <th scope="col">Curso</th>
-              <th scope="col">Enviados</th>
-              <th scope="col" class="num">Aprovados</th>
-              <th scope="col" class="num">Reprovados</th>
-              <th scope="col" class="num">Em andamento</th>
-              <th scope="col" class="num">Removidos</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (l of relatorio.porCurso; track l.rotulo) {
+    @for (g of grupos; track g.chave) {
+      <section class="cartao">
+        <h2>{{ g.titulo }}</h2>
+        <div class="rolagem">
+          <table>
+            <caption class="so-leitor">{{ g.titulo }}</caption>
+            <thead>
               <tr>
-                <th scope="row">{{ l.rotulo }}</th>
-                <td>
-                  <div class="celula-barra">
-                    <div class="barra" aria-hidden="true">
-                      <span [style.width.%]="largura(l)"></span>
+                <th scope="col">{{ g.coluna }}</th>
+                <th scope="col">Enviados</th>
+                <th scope="col" class="num">Aprovados</th>
+                <th scope="col" class="num">Reprovados</th>
+                <th scope="col" class="num">Em andamento</th>
+                <th scope="col" class="num">Removidos</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (l of g.linhas; track l.rotulo) {
+                <tr>
+                  <th scope="row">{{ l.rotulo }}</th>
+                  <td>
+                    <div class="celula-barra">
+                      <div class="barra" aria-hidden="true">
+                        <span [style.width.%]="largura(l, g)"></span>
+                      </div>
+                      <span class="num">{{ l.enviados }}</span>
                     </div>
-                    <span class="num">{{ l.enviados }}</span>
-                  </div>
-                </td>
-                <td class="num">{{ l.aprovados }}</td>
-                <td class="num">{{ l.reprovados }}</td>
-                <td class="num">{{ l.emAndamento }}</td>
-                <td class="num">{{ l.removidos }}</td>
-              </tr>
+                  </td>
+                  <td class="num">{{ l.aprovados }}</td>
+                  <td class="num">{{ l.reprovados }}</td>
+                  <td class="num">{{ l.emAndamento }}</td>
+                  <td class="num">{{ l.removidos }}</td>
+                </tr>
+              }
+            </tbody>
+            @if (g.comTotal) {
+              <tfoot>
+                <tr>
+                  <th scope="row">Total</th>
+                  <td class="num">{{ relatorio.total.enviados }}</td>
+                  <td class="num">{{ relatorio.total.aprovados }}</td>
+                  <td class="num">{{ relatorio.total.reprovados }}</td>
+                  <td class="num">{{ relatorio.total.emAndamento }}</td>
+                  <td class="num">{{ relatorio.total.removidos }}</td>
+                </tr>
+              </tfoot>
             }
-          </tbody>
-          <tfoot>
-            <tr>
-              <th scope="row">Total</th>
-              <td class="num">{{ relatorio.total.enviados }}</td>
-              <td class="num">{{ relatorio.total.aprovados }}</td>
-              <td class="num">{{ relatorio.total.reprovados }}</td>
-              <td class="num">{{ relatorio.total.emAndamento }}</td>
-              <td class="num">{{ relatorio.total.removidos }}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </section>
-
-    <section class="cartao">
-      <h2>Por ano de envio</h2>
-      <div class="rolagem">
-        <table>
-          <caption class="so-leitor">Trabalhos por ano</caption>
-          <thead>
-            <tr>
-              <th scope="col">Ano</th>
-              <th scope="col" class="num">Enviados</th>
-              <th scope="col" class="num">Aprovados</th>
-              <th scope="col" class="num">Reprovados</th>
-              <th scope="col" class="num">Em andamento</th>
-              <th scope="col" class="num">Removidos</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (l of relatorio.porAno; track l.rotulo) {
-              <tr>
-                <th scope="row">{{ l.rotulo }}</th>
-                <td class="num">{{ l.enviados }}</td>
-                <td class="num">{{ l.aprovados }}</td>
-                <td class="num">{{ l.reprovados }}</td>
-                <td class="num">{{ l.emAndamento }}</td>
-                <td class="num">{{ l.removidos }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </section>
+          </table>
+        </div>
+      </section>
+    }
   }
 }

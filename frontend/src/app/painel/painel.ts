@@ -73,7 +73,7 @@ export class Painel implements OnInit {
     this.recentes = lista.slice(0, 5).map((e) => ({
       id: e.id,
       titulo: e.titulo,
-      detalhe: `${e.autor} · ${e.curso} · ${e.versao > 1 ? 'reenviado' : 'enviado'} ${descreverQuando(dataUltimoEnvio(e))}`,
+            detalhe: `${e.autor} · ${e.turma ? e.turma + ' · ' : ''}${e.curso} · ${e.versao > 1 ? 'reenviado' : 'enviado'} ${descreverQuando(dataUltimoEnvio(e))}`,
       status: e.status,
             motivo: e.status === 'Reprovado' || e.status === 'Removido' ? (e.motivo ?? '') : '',
     }));
