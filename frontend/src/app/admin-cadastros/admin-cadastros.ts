@@ -21,12 +21,8 @@ export class AdminCadastros implements OnInit {
   private sessao = inject(Sessao);
 
   cursos: ItemCurso[] = [];
-  orientadores: string[] = [];
-
   novoCurso = '';
-  novoOrientador = '';
-  erroCurso = '';
-  erroOrientador = '';
+  erro = '';
   aviso = '';
 
   ngOnInit() {
@@ -37,53 +33,31 @@ export class AdminCadastros implements OnInit {
     return this.sessao.usuario?.nome ?? 'Coordenação';
   }
 
-  adicionarCurso() {
+  adicionar() {
     const nome = this.novoCurso.trim().replace(/\s+/g, ' ');
     const erro = this.catalogo.adicionarCurso(this.novoCurso);
     if (erro) {
-      this.erroCurso = erro;
+      this.erro = erro;
       return;
     }
 
     this.atividades.registrar(this.nomeAdmin, 'Curso cadastrado', nome);
     this.aviso = `Curso "${nome}" cadastrado.`;
     this.novoCurso = '';
-    this.erroCurso = '';
+    this.erro = '';
     this.carregar();
   }
 
-  removerCurso(item: ItemCurso) {
+  remover(item: ItemCurso) {
     const erro = this.catalogo.removerCurso(item.nome);
     if (erro) {
-      this.erroCurso = erro;
+      this.erro = erro;
       return;
     }
 
     this.atividades.registrar(this.nomeAdmin, 'Curso removido', item.nome);
     this.aviso = `Curso "${item.nome}" removido.`;
-    this.erroCurso = '';
-    this.carregar();
-  }
-
-  adicionarOrientador() {
-    const nome = this.novoOrientador.trim().replace(/\s+/g, ' ');
-    const erro = this.catalogo.adicionarOrientador(this.novoOrientador);
-    if (erro) {
-      this.erroOrientador = erro;
-      return;
-    }
-
-    this.atividades.registrar(this.nomeAdmin, 'Orientador cadastrado', nome);
-    this.aviso = `Orientador(a) "${nome}" cadastrado(a).`;
-    this.novoOrientador = '';
-    this.erroOrientador = '';
-    this.carregar();
-  }
-
-  removerOrientador(nome: string) {
-    this.catalogo.removerOrientador(nome);
-    this.atividades.registrar(this.nomeAdmin, 'Orientador removido', nome);
-    this.aviso = `Orientador(a) "${nome}" removido(a).`;
+    this.erro = '';
     this.carregar();
   }
 
@@ -92,6 +66,5 @@ export class AdminCadastros implements OnInit {
       nome,
       trabalhos: this.catalogo.trabalhosDoCurso(nome),
     }));
-    this.orientadores = this.catalogo.listarOrientadores();
   }
 }

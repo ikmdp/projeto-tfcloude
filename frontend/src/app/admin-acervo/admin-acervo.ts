@@ -2,12 +2,15 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Envio, Envios } from '../servicos/envios';
 import { Catalogo } from '../servicos/catalogo';
+import { Professores } from '../servicos/professores';
 import { Atividades } from '../servicos/atividades';
 import { Sessao } from '../servicos/sessao';
 
 type Aba = 'acervo' | 'removidos';
 
 const MAX_PALAVRAS = 8;
+const MAX_ALUNOS = 6;
+const TURNOS = ['Manhã', 'Tarde', 'Noite', 'Integral'];
 
 @Component({
   selector: 'app-admin-acervo',
@@ -18,6 +21,7 @@ const MAX_PALAVRAS = 8;
 export class AdminAcervo implements OnInit {
   private envios = inject(Envios);
   private catalogo = inject(Catalogo);
+  private cadastroProfessores = inject(Professores);
   private atividades = inject(Atividades);
   private sessao = inject(Sessao);
 
@@ -35,12 +39,16 @@ export class AdminAcervo implements OnInit {
   // ---------- Edição ----------
   editandoId: string | null = null;
   edTitulo = '';
+  edAlunos = '';
+  edTurma = '';
+  edTurno = '';
   edCurso = '';
   edOrientador = '';
   edPalavras = '';
   erroEdicao = '';
   cursosEdicao: string[] = [];
-  orientadores = this.catalogo.listarOrientadores();
+  turnosEdicao: string[] = [];
+  professoresEdicao: string[] = [];
   private original: Envio | null = null;
 
   // ---------- Remoção ----------
@@ -78,7 +86,17 @@ export class AdminAcervo implements OnInit {
       if (!palavras.length) return true;
 
       const texto = this.normalizar(
-        [e.titulo, e.autor, e.curso, e.orientador ?? '', ...(e.palavrasChave ?? [])].join(' '),
+        [
+          e.titulo,
+          ...e.alunos,
+          e.autor,
+          e.curso,
+          e.turma,
+          e.turno,
+          e.orientador ?? '',
+          e.enviadoPor,
+          ...(e.palavrasChave ?? []),
+        ].join(' '),
       );
       return palavras.every((p) => texto.includes(p));
     });
@@ -86,7 +104,13 @@ export class AdminAcervo implements OnInit {
 
   detalhe(e: Envio): string {
     const ano = new Date(e.enviadoEm).getFullYear();
-    return `${e.autor} · ${e.curso} · ${ano}`;
+    const turma = e.turma ? ` · ${e.turma}` : '';
+    const turno = e.turno ? ` · ${e.turno}` : '';
+    return `${e.autor} · ${e.curso}${turma}${turno} · ${ano}`;
+  }
+
+  responsaveis(e: Envio): string {
+    return `Orientador(a): ${e.orientador || 'não informado'} · Enviado por: ${e.enviadoPor || 'não informado'}`;
   }
 
   // ---------- Editar ----------
@@ -95,14 +119,25 @@ export class AdminAcervo implements OnInit {
     this.original = e;
     this.editandoId = e.id;
     this.edTitulo = e.titulo;
+    this.edAlunos = e.alunos.join('\n');
+    this.edTurma = e.turma;
+    this.edTurno = e.turno;
     this.edCurso = e.curso;
     this.edOrientador = e.orientador ?? '';
     this.edPalavras = (e.palavrasChave ?? []).join(', ');
     this.erroEdicao = '';
 
-    // Mantém na lista o curso que o trabalho já tem, mesmo que tenha saído do cadastro
+    // Mantém nas listas o que o trabalho já tem, mesmo que tenha saído do cadastro
     const cursos = this.catalogo.listarCursos();
     this.cursosEdicao = cursos.includes(e.curso) ? cursos : [...cursos, e.curso];
+
+    this.turnosEdicao = e.turno && !TURNOS.includes(e.turno) ? [...TURNOS, e.turno] : [...TURNOS];
+
+    const professores = this.cadastroProfessores.listar().map((p) => p.nome);
+    this.professoresEdicao =
+      !e.orientador || professores.includes(e.orientador)
+        ? professores
+        : [...professores, e.orientador];
   }
 
   cancelarEdicao() {
@@ -116,15 +151,40 @@ export class AdminAcervo implements OnInit {
     if (!envio) return;
 
     const titulo = this.edTitulo.trim().replace(/\s+/g, ' ');
-    const orientador = this.edOrientador.trim().replace(/\s+/g, ' ');
+    const turma = this.edTurma.trim().replace(/\s+/g, ' ');
+    const alunos = this.separarAlunos(this.edAlunos);
     const palavras = this.separarPalavras(this.edPalavras);
 
     if (titulo.length < 5) {
       this.erroEdicao = 'Informe o título do trabalho.';
       return;
     }
-    if (orientador.length < 3) {
-      this.erroEdicao = 'Informe o nome do orientador(a).';
+    if (alunos.length === 0) {
+      this.erroEdicao = 'Informe o nome de pelo menos um aluno.';
+      return;
+    }
+    if (alunos.length > MAX_ALUNOS) {
+      this.erroEdicao = `O trabalho pode ter no máximo ${MAX_ALUNOS} alunos.`;
+      return;
+    }
+    if (alunos.some((a) => a.length < 3)) {
+      this.erroEdicao = 'Cada nome de aluno precisa ter pelo menos 3 letras.';
+      return;
+    }
+    if (new Set(alunos.map((a) => this.normalizar(a))).size !== alunos.length) {
+      this.erroEdicao = 'Há alunos com o mesmo nome.';
+      return;
+    }
+
+    // Trabalhos antigos podem não ter turma: nesse caso ela pode continuar vazia
+    const turmaOk = turma.length >= 2 || (turma === '' && envio.turma === '');
+    if (!turmaOk) {
+      this.erroEdicao = 'Informe a turma (ex: 3º A).';
+      return;
+    }
+
+    if (!this.edOrientador) {
+      this.erroEdicao = 'Selecione o professor orientador(a).';
       return;
     }
     if (palavras.length === 0) {
@@ -134,8 +194,11 @@ export class AdminAcervo implements OnInit {
 
     const mudou: string[] = [];
     if (titulo !== envio.titulo) mudou.push('título');
+    if (alunos.join('|') !== envio.alunos.join('|')) mudou.push('alunos');
+    if (turma !== envio.turma) mudou.push('turma');
+    if (this.edTurno !== envio.turno) mudou.push('turno');
     if (this.edCurso !== envio.curso) mudou.push('curso');
-    if (orientador !== (envio.orientador ?? '')) mudou.push('orientador');
+    if (this.edOrientador !== (envio.orientador ?? '')) mudou.push('orientador');
     if (palavras.join('|') !== (envio.palavrasChave ?? []).join('|')) mudou.push('palavras-chave');
 
     if (mudou.length === 0) {
@@ -146,7 +209,15 @@ export class AdminAcervo implements OnInit {
     const resumo = `Alterou: ${mudou.join(', ')}`;
     const atualizado = this.envios.editar(
       envio.id,
-      { titulo, curso: this.edCurso, orientador, palavrasChave: palavras },
+      {
+        titulo,
+        curso: this.edCurso,
+        orientador: this.edOrientador,
+        palavrasChave: palavras,
+        alunos,
+        turma,
+        turno: this.edTurno,
+      },
       this.nomeAdmin,
       resumo,
     );
@@ -228,6 +299,14 @@ export class AdminAcervo implements OnInit {
   private fecharPaineis() {
     this.cancelarEdicao();
     this.cancelarRemocao();
+  }
+
+  /** Um nome por linha. */
+  private separarAlunos(texto: string): string[] {
+    return texto
+      .split(/\r?\n/)
+      .map((n) => n.trim().replace(/\s+/g, ' '))
+      .filter((n) => n.length > 0);
   }
 
   /** "iot, sensores ; energia" vira ['iot', 'sensores', 'energia'], sem repetidas. */

@@ -1,0 +1,99 @@
+<p class="secao">COORDENAÇÃO</p>
+<h1>Professores</h1>
+<p class="subtitulo">
+  Só quem tem o e-mail institucional cadastrado aqui acessa a área de professores e envia TFCs.
+  Quem entrar com outro e-mail é tratado como aluno.
+</p>
+
+@if (aviso) {
+  <p class="aviso" role="status">{{ aviso }}</p>
+}
+
+<section class="cartao">
+  <h2>Cadastrar professor(a)</h2>
+
+  <form class="formulario" (ngSubmit)="adicionar()" novalidate>
+    <div class="campo">
+      <label for="nome">Nome completo</label>
+      <input
+        id="nome"
+        name="novoNome"
+        type="text"
+        placeholder="Ex: Carlos Eduardo Lima"
+        [(ngModel)]="novoNome"
+        (input)="erro = ''"
+        [class.invalido]="erro"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="campo">
+      <label for="email">E-mail institucional</label>
+      <input
+        id="email"
+        name="novoEmail"
+        type="email"
+        placeholder="professor@etec.sp.gov.br"
+        [(ngModel)]="novoEmail"
+        (input)="erro = ''"
+        [class.invalido]="erro"
+        autocomplete="off"
+      />
+    </div>
+
+    <button type="submit" class="btn-add">Cadastrar</button>
+  </form>
+
+  @if (erro) {
+    <p class="erro" role="alert">{{ erro }}</p>
+  }
+</section>
+
+<section class="cartao">
+  <h2>Professores cadastrados ({{ lista.length }})</h2>
+
+  @if (lista.length === 0) {
+    <p class="vazio">Nenhum professor cadastrado. Cadastre o primeiro acima.</p>
+  } @else {
+    <ul class="itens">
+      @for (p of lista; track p.email) {
+        <li class="item">
+          <div class="linha">
+            <div class="info">
+              <p class="nome">{{ p.nome }}</p>
+              <p class="uso">
+                {{ p.email }} · {{ p.trabalhos === 1 ? '1 trabalho enviado' : p.trabalhos + ' trabalhos enviados' }}
+              </p>
+            </div>
+
+            @if (removendo !== p.email) {
+              <button
+                type="button"
+                class="btn-remover"
+                [attr.aria-label]="'Remover ' + p.nome"
+                (click)="pedirRemocao(p)"
+              >
+                Remover
+              </button>
+            }
+          </div>
+
+          @if (removendo === p.email) {
+            <div class="confirmacao" role="alert">
+              <p>
+                Remover {{ p.nome }}? O acesso à área de professores é cancelado. Os trabalhos que já
+                foram enviados continuam no sistema.
+              </p>
+              <div class="botoes">
+                <button type="button" class="btn-confirmar" (click)="confirmarRemocao(p)">
+                  Confirmar remoção
+                </button>
+                <button type="button" class="btn-cancelar" (click)="cancelarRemocao()">Cancelar</button>
+              </div>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>

@@ -388,3 +388,10 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
+.painel .dica-campo {
+  margin: -8px 0 14px;
+}
+
+.detalhe + .detalhe {
+  margin-top: 2px;
+}

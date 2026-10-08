@@ -32,7 +32,7 @@
   <input
     id="busca"
     type="search"
-    placeholder="Buscar por título, autor ou tema..."
+    placeholder="Buscar por título, aluno, professor, turma ou tema..."
     [ngModel]="consulta"
     (ngModelChange)="consulta = $event; filtrar()"
     autocomplete="off"
@@ -72,6 +72,7 @@
             <div class="info">
               <p class="titulo">{{ e.titulo }}</p>
               <p class="detalhe">{{ detalhe(e) }}</p>
+              <p class="detalhe">{{ responsaveis(e) }}</p>
               @if (aba === 'removidos' && e.motivo) {
                 <p class="motivo">Motivo da remoção: {{ e.motivo }}</p>
               }
@@ -98,6 +99,48 @@
                 (input)="erroEdicao = ''"
               />
 
+              <label for="ed-alunos">Aluno(s) autor(es)</label>
+              <textarea
+                id="ed-alunos"
+                name="edAlunos"
+                rows="3"
+                [(ngModel)]="edAlunos"
+                (input)="erroEdicao = ''"
+              ></textarea>
+              <p class="dica-painel dica-campo">Um aluno por linha (máximo de 6).</p>
+
+              <div class="duas-colunas">
+                <div>
+                  <label for="ed-turma">Turma</label>
+                  <input
+                    id="ed-turma"
+                    name="edTurma"
+                    type="text"
+                    placeholder="Ex: 3º A"
+                    [(ngModel)]="edTurma"
+                    (input)="erroEdicao = ''"
+                    autocomplete="off"
+                  />
+                </div>
+
+                <div>
+                  <label for="ed-turno">Turno</label>
+                  <div class="campo-select">
+                    <select id="ed-turno" name="edTurno" [(ngModel)]="edTurno">
+                      @if (!edTurno) {
+                        <option value="">Não informado</option>
+                      }
+                      @for (t of turnosEdicao; track t) {
+                        <option [value]="t">{{ t }}</option>
+                      }
+                    </select>
+                    <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9l6 6 6-6"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
               <div class="duas-colunas">
                 <div>
                   <label for="ed-curso">Curso</label>
@@ -114,20 +157,23 @@
                 </div>
 
                 <div>
-                  <label for="ed-orientador">Orientador(a)</label>
-                  <input
-                    id="ed-orientador"
-                    name="edOrientador"
-                    type="text"
-                    list="lista-orientadores"
-                    [(ngModel)]="edOrientador"
-                    (input)="erroEdicao = ''"
-                  />
-                  <datalist id="lista-orientadores">
-                    @for (o of orientadores; track o) {
-                      <option [value]="o"></option>
-                    }
-                  </datalist>
+                  <label for="ed-orientador">Professor orientador(a)</label>
+                  <div class="campo-select">
+                    <select
+                      id="ed-orientador"
+                      name="edOrientador"
+                      [(ngModel)]="edOrientador"
+                      (ngModelChange)="erroEdicao = ''"
+                    >
+                      <option value="">Selecione</option>
+                      @for (p of professoresEdicao; track p) {
+                        <option [value]="p">{{ p }}</option>
+                      }
+                    </select>
+                    <svg class="seta" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9l6 6 6-6"></path>
+                    </svg>
+                  </div>
                 </div>
               </div>
 
@@ -159,10 +205,11 @@
                 rows="3"
                 [(ngModel)]="motivoRemocao"
                 (input)="erroRemocao = ''"
-                placeholder="Ex: Trabalho enviado com o arquivo errado. O aluno vai reenviar."
+                placeholder="Ex: Trabalho enviado com o arquivo errado. O professor vai reenviar."
               ></textarea>
               <p class="dica-painel">
-                O trabalho sai do acervo e o aluno vê este motivo no painel dele. Você pode restaurá-lo depois.
+                O trabalho sai do acervo e o professor que o enviou vê este motivo no painel dele.
+                Você pode restaurá-lo depois.
               </p>
               @if (erroRemocao) {
                 <p class="erro" role="alert">{{ erroRemocao }}</p>
