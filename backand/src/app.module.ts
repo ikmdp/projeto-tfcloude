@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
+import { EnviosModule } from './envios/envios.module.js';
 import { ProfessoresModule } from './professores/professores.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
 
@@ -27,6 +28,7 @@ import { UsuariosModule } from './usuarios/usuarios.module.js';
     UsuariosModule,
     AuthModule,
     ProfessoresModule,
+    EnviosModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

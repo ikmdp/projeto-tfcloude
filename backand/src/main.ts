@@ -14,7 +14,10 @@ async function bootstrap() {
   );
 
   // Só o front-end do projeto pode chamar a API pelo navegador
-  app.enableCors({ origin: process.env.FRONTEND_URL ?? 'http://localhost:4200' });
+  app.enableCors({
+    origin: process.env.FRONTEND_URL ?? 'http://localhost:4200',
+    exposedHeaders: ['Content-Disposition'],
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }

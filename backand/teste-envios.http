@@ -1,0 +1,360 @@
+@url = http://localhost:3000/api
+@emailProf = prof4@teste.com
+
+### A1. Login da coordenação
+# @name loginAdmin
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "senha": "{{$dotenv ADMIN_SENHA}}"
+}
+
+### A2. Cadastrar o professor (se já existir ativo, vai dar 409: pule para o A4)
+POST {{url}}/professores
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "nome": "Carlos Lima",
+  "email": "{{emailProf}}"
+}
+
+### A3. Ativar a conta com o link do e-mail (ou do terminal)
+@tokenConvite = acf0c21c113c882592d3c65c167997ff84a4d0aeb9b4c3248728cef8a67bbc28
+POST {{url}}/auth/definir-senha
+Content-Type: application/json
+
+{
+  "token": "{{tokenConvite}}",
+  "senha": "senhaProf123"
+}
+
+### A4. Login do professor
+# @name loginProf
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{emailProf}}",
+  "senha": "senhaProf123"
+}
+
+### A5. Cadastro e login de um aluno
+POST {{url}}/auth/cadastro
+Content-Type: application/json
+
+{
+  "nome": "Maria Souza",
+  "email": "aluno@teste.com",
+  "senha": "senha1234"
+}
+
+###
+# @name loginAluno
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "aluno@teste.com",
+  "senha": "senha1234"
+}
+
+### 1. Professores disponíveis para orientar
+# @name orientadores
+GET {{url}}/envios/orientadores
+Authorization: Bearer {{loginProf.response.body.token}}
+
+### 2. Professor envia um TFC (deve dar 201)
+# @name criar
+POST {{url}}/envios
+Authorization: Bearer {{loginProf.response.body.token}}
+Content-Type: multipart/form-data; boundary=----TFCloud
+
+------TFCloud
+Content-Disposition: form-data; name="titulo"
+
+Automação de irrigação com sensores IoT
+------TFCloud
+Content-Disposition: form-data; name="alunos"
+
+["Ana Lima", "Bruno Costa"]
+------TFCloud
+Content-Disposition: form-data; name="turma"
+
+3º A
+------TFCloud
+Content-Disposition: form-data; name="turno"
+
+Noite
+------TFCloud
+Content-Disposition: form-data; name="curso"
+
+Eletrotécnica
+------TFCloud
+Content-Disposition: form-data; name="orientadorId"
+
+{{orientadores.response.body.$[0].id}}
+------TFCloud
+Content-Disposition: form-data; name="palavrasChave"
+
+["iot", "sensores", "irrigação"]
+------TFCloud
+Content-Disposition: form-data; name="arquivo"; filename="Automação IoT.pdf"
+Content-Type: application/pdf
+
+< ./exemplo.pdf
+------TFCloud--
+
+### 3. Arquivo que não é PDF, só com o nome de PDF (deve dar 400)
+POST {{url}}/envios
+Authorization: Bearer {{loginProf.response.body.token}}
+Content-Type: multipart/form-data; boundary=----TFCloud
+
+------TFCloud
+Content-Disposition: form-data; name="titulo"
+
+Trabalho com arquivo falso
+------TFCloud
+Content-Disposition: form-data; name="alunos"
+
+["Ana Lima"]
+------TFCloud
+Content-Disposition: form-data; name="turma"
+
+3º A
+------TFCloud
+Content-Disposition: form-data; name="turno"
+
+Noite
+------TFCloud
+Content-Disposition: form-data; name="curso"
+
+Eletrotécnica
+------TFCloud
+Content-Disposition: form-data; name="orientadorId"
+
+{{orientadores.response.body.$[0].id}}
+------TFCloud
+Content-Disposition: form-data; name="palavrasChave"
+
+["teste"]
+------TFCloud
+Content-Disposition: form-data; name="arquivo"; filename="falso.pdf"
+Content-Type: application/pdf
+
+< ./teste-envios.http
+------TFCloud--
+
+### 4. Envio sem arquivo e com dados faltando (deve dar 400)
+POST {{url}}/envios
+Authorization: Bearer {{loginProf.response.body.token}}
+Content-Type: multipart/form-data; boundary=----TFCloud
+
+------TFCloud
+Content-Disposition: form-data; name="titulo"
+
+Abc
+------TFCloud--
+
+### 5. Aluno tentando enviar TFC (deve dar 403)
+POST {{url}}/envios
+Authorization: Bearer {{loginAluno.response.body.token}}
+Content-Type: multipart/form-data; boundary=----TFCloud
+
+------TFCloud
+Content-Disposition: form-data; name="titulo"
+
+Aluno não pode enviar
+------TFCloud--
+
+### 6. Meus envios (professor)
+GET {{url}}/envios/meus
+Authorization: Bearer {{loginProf.response.body.token}}
+
+### 7. Fila de avaliação (coordenação)
+GET {{url}}/envios/fila
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 8. Professor tentando ver a fila (deve dar 403)
+GET {{url}}/envios/fila
+Authorization: Bearer {{loginProf.response.body.token}}
+
+### 9. Pedir ajustes sem motivo (deve dar 400)
+POST {{url}}/envios/{{criar.response.body.id}}/decisao
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "decisao": "ajustes"
+}
+
+### 10. Pedir ajustes com motivo (deve dar 200, status "Ajustes solicitados")
+POST {{url}}/envios/{{criar.response.body.id}}/decisao
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "decisao": "ajustes",
+  "motivo": "Faltam as referências no padrão ABNT."
+}
+
+### 11. Decidir de novo o mesmo trabalho (deve dar 409)
+POST {{url}}/envios/{{criar.response.body.id}}/decisao
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "decisao": "aprovado"
+}
+
+### 12. Professor reenvia o trabalho corrigido (deve dar 200, versão 2, "Em análise")
+POST {{url}}/envios/{{criar.response.body.id}}/reenviar
+Authorization: Bearer {{loginProf.response.body.token}}
+Content-Type: multipart/form-data; boundary=----TFCloud
+
+------TFCloud
+Content-Disposition: form-data; name="titulo"
+
+Automação de irrigação com sensores IoT
+------TFCloud
+Content-Disposition: form-data; name="alunos"
+
+["Ana Lima", "Bruno Costa"]
+------TFCloud
+Content-Disposition: form-data; name="turma"
+
+3º A
+------TFCloud
+Content-Disposition: form-data; name="turno"
+
+Noite
+------TFCloud
+Content-Disposition: form-data; name="curso"
+
+Eletrotécnica
+------TFCloud
+Content-Disposition: form-data; name="orientadorId"
+
+{{orientadores.response.body.$[0].id}}
+------TFCloud
+Content-Disposition: form-data; name="palavrasChave"
+
+["iot", "sensores", "irrigação"]
+------TFCloud
+Content-Disposition: form-data; name="arquivo"; filename="Automação IoT v2.pdf"
+Content-Type: application/pdf
+
+< ./exemplo.pdf
+------TFCloud--
+
+### 13. Reenviar de novo (deve dar 409: não está esperando correções)
+POST {{url}}/envios/{{criar.response.body.id}}/reenviar
+Authorization: Bearer {{loginProf.response.body.token}}
+Content-Type: multipart/form-data; boundary=----TFCloud
+
+------TFCloud
+Content-Disposition: form-data; name="titulo"
+
+Qualquer
+------TFCloud--
+
+### 14. Aprovar o trabalho (deve dar 200)
+POST {{url}}/envios/{{criar.response.body.id}}/decisao
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "decisao": "aprovado"
+}
+
+### 15. Acervo visto pelo aluno (deve listar o trabalho, sem motivo nem histórico)
+GET {{url}}/acervo
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 16. Busca no acervo, ignorando acento e maiúscula (deve achar)
+GET {{url}}/acervo?q=IRRIGACAO
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 17. Busca que não acha nada (lista vazia)
+GET {{url}}/acervo?q=zzzzzz
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 18. Aluno baixa o PDF aprovado (deve dar 200, application/pdf)
+GET {{url}}/envios/{{criar.response.body.id}}/arquivo
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 19. Aluno tentando ver o detalhe (deve dar 404)
+GET {{url}}/envios/{{criar.response.body.id}}
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 20. Professor vê o detalhe, com o histórico (deve dar 200)
+GET {{url}}/envios/{{criar.response.body.id}}
+Authorization: Bearer {{loginProf.response.body.token}}
+
+### 21. Coordenação edita o trabalho (deve dar 200, histórico "Dados editados")
+PATCH {{url}}/envios/{{criar.response.body.id}}
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "titulo": "Automação de irrigação com sensores IoT e LoRa",
+  "alunos": ["Ana Lima", "Bruno Costa"],
+  "turma": "3º B",
+  "turno": "Noite",
+  "curso": "Eletrotécnica",
+  "orientadorId": "{{orientadores.response.body.$[0].id}}",
+  "palavrasChave": ["iot", "sensores", "lora"]
+}
+
+### 22. Editar sem mudar nada (deve dar 400)
+PATCH {{url}}/envios/{{criar.response.body.id}}
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "titulo": "Automação de irrigação com sensores IoT e LoRa",
+  "alunos": ["Ana Lima", "Bruno Costa"],
+  "turma": "3º B",
+  "turno": "Noite",
+  "curso": "Eletrotécnica",
+  "orientadorId": "{{orientadores.response.body.$[0].id}}",
+  "palavrasChave": ["iot", "sensores", "lora"]
+}
+
+### 23. Remover do acervo, com motivo (deve dar 200, status "Removido")
+POST {{url}}/envios/{{criar.response.body.id}}/remover
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "motivo": "Enviado com o arquivo errado."
+}
+
+### 24. Acervo depois de remover (o trabalho não aparece mais)
+GET {{url}}/acervo
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 25. Aluno baixando um trabalho removido (deve dar 404)
+GET {{url}}/envios/{{criar.response.body.id}}/arquivo
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 26. Professor dono ainda baixa o próprio trabalho (deve dar 200)
+GET {{url}}/envios/{{criar.response.body.id}}/arquivo
+Authorization: Bearer {{loginProf.response.body.token}}
+
+### 27. Restaurar ao acervo (deve dar 200, status "Aprovado")
+POST {{url}}/envios/{{criar.response.body.id}}/restaurar
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 28. Desfazer decisão num trabalho já aprovado e editado (deve dar 409: a última ação foi outra)
+POST {{url}}/envios/{{criar.response.body.id}}/desfazer
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 29. Listar tudo, só os aprovados (coordenação)
+GET {{url}}/envios?status=Aprovado
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 30. Sem login (deve dar 401)
+GET {{url}}/acervo
