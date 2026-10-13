@@ -5,9 +5,12 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { AtividadesModule } from './atividades/atividades.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { CursosModule } from './cursos/cursos.module.js';
 import { EnviosModule } from './envios/envios.module.js';
 import { ProfessoresModule } from './professores/professores.module.js';
+import { RelatoriosModule } from './relatorios/relatorios.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
 
 @Module({
@@ -28,7 +31,10 @@ import { UsuariosModule } from './usuarios/usuarios.module.js';
     UsuariosModule,
     AuthModule,
     ProfessoresModule,
+    AtividadesModule,
+    CursosModule,
     EnviosModule,
+    RelatoriosModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
