@@ -1,5 +1,5 @@
 @url = http://localhost:3000/api
-@emailProfessor = prof@teste.com
+@emailProfessor = prof5@teste.com
 
 ### 1. Login da coordenação (usa a ADMIN_SENHA do .env)
 # @name loginAdmin
@@ -84,7 +84,7 @@ Authorization: Bearer {{loginAdmin.response.body.token}}
 
 ### 11. Criar a senha com o link do e-mail
 # Copie o token do link (os 64 caracteres depois de "token=") do Mailtrap ou do terminal.
-@tokenConvite = COLE-AQUI-O-TOKEN
+@tokenConvite = 4fe5bbb8e81afab1846f9d8f72a6638d19e022b7caf71a4b990bb2d875f3cf43
 # @name ativar
 POST {{url}}/auth/definir-senha
 Content-Type: application/json
