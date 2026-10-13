@@ -136,6 +136,7 @@ export class ProfessoresService {
       tokenExpira: null,
       sessaoVersao: usuario.sessaoVersao + 1,
     });
+        return { nome: usuario.nome, email: usuario.email };
   }
 
   private async enviarConvite(usuario: Usuario) {
