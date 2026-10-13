@@ -10,13 +10,13 @@ import { EnviarTfc } from './enviar-tfc/enviar-tfc';
 import { Acervo } from './acervo/acervo';
 import { Avaliacao } from './avaliacao/avaliacao';
 import { AlunoLayout } from './aluno-layout/aluno-layout';
-import { AdminLayout } from './admin-layout/admin-layout';
-import { AdminPainel } from './admin-painel/admin-painel';
-import { AdminCadastros } from './admin-cadastros/admin-cadastros';
-import { AdminAcervo } from './admin-acervo/admin-acervo';
-import { AdminAtividades } from './admin-atividades/admin-atividades';
-import { AdminRelatorios } from './admin-relatorios/admin-relatorios';
-import { AdminProfessores } from './admin-professores/admin-professores';
+import { AdminLayout } from './ADMIN/admin-layout/admin-layout';
+import { AdminPainel } from './ADMIN/admin-painel/admin-painel';
+import { AdminCadastros } from './ADMIN/admin-cadastros/admin-cadastros';
+import { AdminAcervo } from './ADMIN/admin-acervo/admin-acervo';
+import { AdminAtividades } from './ADMIN/admin-atividades/admin-atividades';
+import { AdminRelatorios } from './ADMIN/admin-relatorios/admin-relatorios';
+import { AdminProfessores } from './ADMIN/admin-professores/admin-professores';
 import { alunoGuard, professorGuard, adminGuard } from './servicos/guardas';
 
 export const routes: Routes = [
