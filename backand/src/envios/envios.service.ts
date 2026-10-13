@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuario } from '../usuarios/usuario.entity.js';
 import { ArmazenamentoService } from './armazenamento.service.js';
+import { CursosService } from '../cursos/cursos.service.js';
 import type { Decisao, StatusEnvio, TipoEvento } from './constantes.js';
 import { ConsultaAcervoDto } from './dto/consulta-acervo.dto.js';
 import { DadosEnvioDto } from './dto/dados-envio.dto.js';
@@ -105,6 +106,7 @@ export class EnviosService {
     @InjectRepository(Envio) private readonly repo: Repository<Envio>,
     @InjectRepository(Usuario) private readonly usuarios: Repository<Usuario>,
     private readonly arquivos: ArmazenamentoService,
+        private readonly cursos: CursosService,
   ) {}
 
   // ---------- Professor ----------
@@ -113,6 +115,7 @@ export class EnviosService {
     if (!arquivo) throw new BadRequestException('Anexe o arquivo do trabalho em PDF.');
 
     const dados = this.limparDados(dto);
+    dados.curso = await this.cursos.resolver(dados.curso);
     const orientador = await this.buscarOrientador(dto.orientadorId);
     const salvo = await this.arquivos.salvar(arquivo);
     const agora = new Date();
@@ -174,6 +177,7 @@ export class EnviosService {
     }
 
     const dados = this.limparDados(dto);
+    dados.curso = await this.cursos.resolver(dados.curso, atual.curso);
     const orientador = await this.escolherOrientador(dto.orientadorId, atual);
     const novo = await this.arquivos.salvar(arquivo);
     let chaveAntiga = '';
@@ -267,6 +271,7 @@ export class EnviosService {
   async editar(id: string, admin: Usuario, dto: DadosEnvioDto) {
     const atual = await this.obterOuFalhar(id);
     const dados = this.limparDados(dto);
+    dados.curso = await this.cursos.resolver(dados.curso, atual.curso);
     const orientador = await this.escolherOrientador(dto.orientadorId, atual);
 
     await this.modificar(id, (e) => {
