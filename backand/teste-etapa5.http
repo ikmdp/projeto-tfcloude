@@ -1,0 +1,241 @@
+@url = http://localhost:3000/api
+@emailProf = prof@teste.com
+
+### A1. Login da coordenação
+# @name loginAdmin
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "senha": "{{$dotenv ADMIN_SENHA}}"
+}
+
+### A2. Login do professor
+# @name loginProf
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{emailProf}}",
+  "senha": "senhaProf123"
+}
+
+### A3. Login do aluno (criado na Etapa 2)
+# @name loginAluno
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "aluno@teste.com",
+  "senha": "senha1234"
+}
+
+### A4. Professores disponíveis
+# @name orientadores
+GET {{url}}/envios/orientadores
+Authorization: Bearer {{loginProf.response.body.token}}
+
+### 1. Lista de cursos SEM login (deve dar 200, só id e nome)
+GET {{url}}/cursos
+
+### 2. Cursos com a quantidade de trabalhos (coordenação)
+GET {{url}}/cursos/uso
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 3. Aluno tentando ver o uso dos cursos (deve dar 403)
+GET {{url}}/cursos/uso
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 4. Cadastrar o curso Edificações (deve dar 201)
+# @name criarCurso
+POST {{url}}/cursos
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "nome": "Edificações"
+}
+
+### 5. Cadastrar de novo, sem acento e em minúsculas (deve dar 409)
+POST {{url}}/cursos
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "nome": "edificacoes"
+}
+
+### 6. Nome vazio (deve dar 400)
+POST {{url}}/cursos
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "nome": ""
+}
+
+### 7. Professor tentando cadastrar curso (deve dar 403)
+POST {{url}}/cursos
+Authorization: Bearer {{loginProf.response.body.token}}
+Content-Type: application/json
+
+{
+  "nome": "Curso do professor"
+}
+
+### 8. Envio com um curso que não existe (deve dar 400)
+POST {{url}}/envios
+Authorization: Bearer {{loginProf.response.body.token}}
+Content-Type: multipart/form-data; boundary=----TFCloud
+
+------TFCloud
+Content-Disposition: form-data; name="titulo"
+
+Trabalho de um curso inexistente
+------TFCloud
+Content-Disposition: form-data; name="alunos"
+
+["Ana Lima"]
+------TFCloud
+Content-Disposition: form-data; name="turma"
+
+3º A
+------TFCloud
+Content-Disposition: form-data; name="turno"
+
+Noite
+------TFCloud
+Content-Disposition: form-data; name="curso"
+
+Astronomia
+------TFCloud
+Content-Disposition: form-data; name="orientadorId"
+
+{{orientadores.response.body.$[0].id}}
+------TFCloud
+Content-Disposition: form-data; name="palavrasChave"
+
+["teste"]
+------TFCloud
+Content-Disposition: form-data; name="arquivo"; filename="trabalho.pdf"
+Content-Type: application/pdf
+
+< ./exemplo.pdf
+------TFCloud--
+
+### 9. Envio no curso Edificações, escrito sem acento (deve dar 201 e gravar "Edificações")
+# @name criarEnvio
+POST {{url}}/envios
+Authorization: Bearer {{loginProf.response.body.token}}
+Content-Type: multipart/form-data; boundary=----TFCloud
+
+------TFCloud
+Content-Disposition: form-data; name="titulo"
+
+Projeto de reaproveitamento de água da chuva
+------TFCloud
+Content-Disposition: form-data; name="alunos"
+
+["Ana Lima", "Bruno Costa"]
+------TFCloud
+Content-Disposition: form-data; name="turma"
+
+3º A
+------TFCloud
+Content-Disposition: form-data; name="turno"
+
+Noite
+------TFCloud
+Content-Disposition: form-data; name="curso"
+
+edificacoes
+------TFCloud
+Content-Disposition: form-data; name="orientadorId"
+
+{{orientadores.response.body.$[0].id}}
+------TFCloud
+Content-Disposition: form-data; name="palavrasChave"
+
+["água da chuva", "sustentabilidade"]
+------TFCloud
+Content-Disposition: form-data; name="arquivo"; filename="Água da chuva.pdf"
+Content-Type: application/pdf
+
+< ./exemplo.pdf
+------TFCloud--
+
+### 10. Tentar remover o curso que tem trabalho (deve dar 409)
+DELETE {{url}}/cursos/{{criarCurso.response.body.id}}
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 11. Criar e remover um curso sem trabalhos (deve dar 201 e depois 204)
+# @name cursoTemporario
+POST {{url}}/cursos
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "nome": "Química"
+}
+
+###
+DELETE {{url}}/cursos/{{cursoTemporario.response.body.id}}
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 12. Aprovar o trabalho (para os relatórios terem o que contar)
+POST {{url}}/envios/{{criarEnvio.response.body.id}}/decisao
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "decisao": "aprovado"
+}
+
+### 13. Registro de atividades (coordenação): as ações dos testes aparecem
+GET {{url}}/atividades
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 14. Só uma ação
+GET {{url}}/atividades?acao=Trabalho%20enviado
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 15. Busca ignorando acento (deve achar o trabalho da água da chuva)
+GET {{url}}/atividades?q=AGUA
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 16. Paginação: 2 por página
+GET {{url}}/atividades?limite=2&pagina=1
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 17. Limite acima do permitido (deve dar 400)
+GET {{url}}/atividades?limite=500
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 18. Professor e aluno no registro de atividades (devem dar 403)
+GET {{url}}/atividades
+Authorization: Bearer {{loginProf.response.body.token}}
+
+###
+GET {{url}}/atividades
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 19. Relatórios em JSON
+GET {{url}}/relatorios
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 20. CSV de trabalhos
+GET {{url}}/relatorios/trabalhos.csv
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 21. CSV do resumo
+GET {{url}}/relatorios/resumo.csv
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 22. Aluno pedindo relatório (deve dar 403)
+GET {{url}}/relatorios
+Authorization: Bearer {{loginAluno.response.body.token}}
+
+### 23. Registro depois das exportações (devem aparecer duas entradas "Relatório exportado")
+GET {{url}}/atividades?acao=Relat%C3%B3rio%20exportado
+Authorization: Bearer {{loginAdmin.response.body.token}}
